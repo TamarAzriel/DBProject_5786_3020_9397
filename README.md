@@ -115,6 +115,62 @@ The DSD presents the physical implementation of the database, including Primary 
 ![DSD Diagram](./Step_A/DBD.png)
 
 ---
+# 🗃️ Data Structure Description
+
+Below is a summary of the main entities and their fields as defined in the **ASTREA** Database Schema:
+
+### **Assets**
+Represents the technical infrastructure and equipment within the hotel.
+* **Asset_Id** (Primary Key)
+* **Asset_Name**
+* **Manufacturer**
+* **Model_Number**
+* **Ticket_ID** (Foreign Key)
+* **Log_Id** (Foreign Key)
+
+### **Maintenance_Tickets**
+Manages the lifecycle of infrastructure repair requests.
+* **Ticket_ID** (Primary Key)
+* **Issue_Description**
+* **Opened_At** (Date)
+* **Resolved_At** (Date)
+* **Urgency_Level**
+* **Ticket_Status**
+
+### **Staff**
+Represents the technical personnel assigned to maintenance tasks.
+* **Staff_ID** (Primary Key)
+* **First_Name**
+* **Last_Name**
+* **Phone_Number**
+* **Expertise**
+* **Ticket_ID** (Foreign Key)
+
+### **Locations**
+Defines the physical areas and access levels within the hotel.
+* **Location_ID** (Primary Key)
+* **Floor_Number**
+* **Area_Name**
+* **Access_Level**
+* **Asset_Id** (Foreign Key)
+
+### **Vendors**
+External contractors and equipment suppliers.
+* **Vendor_Id** (Primary Key)
+* **Company_Name**
+* **Contract_Number**
+* **Contact_Person**
+* **Asset_Id** (Foreign Key)
+
+### **Inspection_Log**
+Detailed technical records of inspections and maintenance outcomes.
+* **Log_Id** (Primary Key)
+* **Inspection_Result**
+* **Technician_Result**
+* **Technician_Notes**
+* **Tools_Used**
+
+📄 **SQL table creation scripts are included in the Stage 1 folder.**
 
 # ⚙️ Design Decisions & Normalization
 
@@ -139,3 +195,31 @@ During the architectural phase of the **ASTREA Hotel** database, several critica
 ### 5. Granular Location Mapping (Locations)
 * **Decision:** The `Locations` table was designed with specific fields: `Floor_Number`, `Area_Name`, and `Access_Level`.
 * **Reasoning:** This eliminates data redundancy and maintains naming consistency across the hotel. The `Access_Level` attribute provides crucial safety and security information, informing technicians if special clearance is required for restricted areas like machine rooms or rooftops.
+## 📥 Data Insertion Methods
+
+
+
+### ✅ Method A: Python Script
+
+![Python Script Screenshot](images/python.png)
+
+---
+
+### ✅ Method B: Mockaroo Generator.
+
+![Mockaroo Screenshot](images/mockaroo.png)
+
+---
+
+### ✅ Method C: AI Studio
+.
+
+![AI Studio Screenshot](images/ai_studio_data.png)
+
+### ✅ Backup & Restore Strategy
+
+**Backup**
+![Backup Process](./%D7%A9%D7%9C%D7%91%20%D7%90/backup_success.png)
+
+**Restore**
+![Restore Validation](./%D7%A9%D7%9C%D7%91%20%D7%90/restore_success.png)
