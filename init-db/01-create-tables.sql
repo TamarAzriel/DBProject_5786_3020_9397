@@ -1,0 +1,3 @@
+-- Database initialization script
+-- This file will be executed first when the container starts
+-- Add your table creation statements here

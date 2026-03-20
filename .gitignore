@@ -1,0 +1,18 @@
+# Environment files
+.env
+.env.local
+
+# Node modules (if using Node.js)
+node_modules/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+postgres_data/
+pgadmin_data/

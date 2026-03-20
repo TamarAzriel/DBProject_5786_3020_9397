@@ -1,0 +1,3 @@
+-- Database seeding script
+-- This file will be executed after table creation
+-- Add your initial data insertion statements here

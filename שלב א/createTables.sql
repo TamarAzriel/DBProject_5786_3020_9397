@@ -1,0 +1,66 @@
+CREATE TABLE MAINTENANCE_TICKETS
+(
+  Ticket_ID INT NOT NULL,
+  Issue_Description INT NOT NULL,
+  Opened_At DATE NOT NULL,
+  Resolved_At DATE NOT NULL,
+  Urgency_Level INT NOT NULL,
+  Ticket_Status INT NOT NULL,
+  PRIMARY KEY (Ticket_ID)
+);
+
+CREATE TABLE INSPECTION_LOG
+(
+  Log_Id INT NOT NULL,
+  Inspection_Result INT NOT NULL,
+  Technician_Result INT NOT NULL,
+  Technican_Notes INT NOT NULL,
+  Tools_Used INT NOT NULL,
+  PRIMARY KEY (Log_Id)
+);
+
+CREATE TABLE ASSETS
+(
+  Asset_Id INT NOT NULL,
+  Asset_Name INT NOT NULL,
+  Manufacturer INT NOT NULL,
+  Model_Number INT NOT NULL,
+  Ticket_ID INT NOT NULL,
+  Log_Id INT NOT NULL,
+  PRIMARY KEY (Asset_Id),
+  FOREIGN KEY (Ticket_ID) REFERENCES MAINTENANCE_TICKETS(Ticket_ID),
+  FOREIGN KEY (Log_Id) REFERENCES INSPECTION_LOG(Log_Id)
+);
+
+CREATE TABLE STAFF
+(
+  Staff_ID INT NOT NULL,
+  First_Name INT NOT NULL,
+  Last_Name INT NOT NULL,
+  Phone_Number INT NOT NULL,
+  Expertise INT NOT NULL,
+  Ticket_ID INT NOT NULL,
+  FOREIGN KEY (Ticket_ID) REFERENCES MAINTENANCE_TICKETS(Ticket_ID)
+);
+
+CREATE TABLE LOCATIONS
+(
+  Location_ID INT NOT NULL,
+  Floor_Number INT NOT NULL,
+  Area_Name INT NOT NULL,
+  Access_Level INT NOT NULL,
+  Asset_Id INT NOT NULL,
+  PRIMARY KEY (Location_ID),
+  FOREIGN KEY (Asset_Id) REFERENCES ASSETS(Asset_Id)
+);
+
+CREATE TABLE VENDORS
+(
+  Vendor_Id INT NOT NULL,
+  Company_Name INT NOT NULL,
+  Contract_Number INT NOT NULL,
+  Contact_Person INT NOT NULL,
+  Asset_Id INT NOT NULL,
+  PRIMARY KEY (Vendor_Id),
+  FOREIGN KEY (Asset_Id) REFERENCES ASSETS(Asset_Id)
+);
