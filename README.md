@@ -1,89 +1,225 @@
 # DBProject_3020_9397
-# פרויקט בסיסי נתונים - מערכת ניהול מלון ASTREA
-## אגף אחזקה ותשתיות (Infrastructure & Maintenance Division)
-
-**מגישות:**
-* תמר עזריאל
-* עדי טוקר
+## DPBPROJECT Hotel - Infrastructure & Maintenance Database System
 
 ---
 
-## תוכן עניינים
-1. [מבוא ומטרת המערכת](#מבוא-ומטרת-המערכת)
-2. [ממשק המשתמש (UI Design)](#ממשק-המשתמש)
-3. [מודל נתונים (ERD & DSD)](#מודל-נתונים)
-4. [החלטות עיצוב ונימוקים](#החלטות-עיצוב)
-5. [הזנת נתונים](#הזנת-נתונים)
-6. [גיבוי ושחזור](#גיבוי-ושחזור)
+# 📘 Project Report
+
+This project is a comprehensive **Infrastructure and Maintenance Management System** for the luxury "ASTREA" Hotel. It was developed as a core component of the Database Systems course to manage high-end technical operations.
+
+# 🧑‍💻 Authors
+* **Tamar Azriel**
+* **Adi Toker**
 
 ---
 
-## מבוא
-מערכת הניהול של מלון **ASTREA** היא מערכת הוליסטית לניהול תפעולי של מלון יוקרה. אגף **האחזקה והתשתיות**, עליו אמונות תמר ועדי, מהווה את הלב הטכני של המלון. 
+# 🏢 Project Scope
+* **System:** Hotel Management System 
+* **Unit:** Infrastructure & Maintenance Division
 
-### הנתונים הנשמרים במערכת:
-המערכת מנהלת רישום מדויק של כלל נכסי התשתית של המלון (Assets), כולל מערכות קירור (Chillers), מעליות, מערכות בקרת חדרים חכמות וציוד מטבח תעשייתי. עבור כל נכס נשמרים נתוני מיקום, תאריכי התקנה, היסטוריית תקלות וסטטוס תקינות בזמן אמת. כמו כן, המערכת מנהלת את מערך "קריאות השירות" (Service Tickets), המשייכת תקלות לאנשי צוות טכניים, קובעת רמות דחיפות ומתעדת את תהליך התיקון.
+---
 
-### פונקציונליות עיקרית:
-* **ניהול מצב נכסים (Asset Registry):** מעקב ומניעה של תקלות בתשתיות קריטיות.
-* **ניהול קריאות שירות (Ticketing System):** פתיחה, תיעוד וסגירה של תקלות תחזוקה.
-* **ניטור בזמן אמת (Monitoring):** דאשבורד ניהולי המציג את עומס העבודה של צוות האחזקה וסטטוס המערכות בחדרי האורחים.
-* **אופטימיזציה של חווית האורח:** הבטחת רציפות תפעולית (מיזוג, מים חמים, מעליות) ללא הפרעה לשהות האורחים.
-## ממשק המשתמש (UI Design)
-להלן ארבעת המסכים המרכזיים של המערכת, כפי שאופיינו ועוצבו בעזרת Google AI Studio. העיצוב נבחר בקו מודרני ויוקרתי המתאים למלון ASTREA.
+# 📌 Table of Contents
+1. [Overview](#-overview)
+2. [UI Design (AI Studio)](#-ui-design-ai-studio)
+3. [ERD and DSD Diagrams](#-erd-and-dsd-diagrams)
+4. [Data Structure Description](#-data-structure-description)
+5. [Design Decisions & Normalization](#-design-decisions)
+6. [Data Insertion Methods](#-data-insertion-methods)
+7. [Backup & Restore](#-backup--restore)
 
-### מסך 1: דאשבורד ניהולי (Dashboard Overview)
-מבט על על מצב התשתיות, התראות דחופות וסטטיסטיקת קריאות שירות פתוחות.
+---
+
+# 🧾 Overview
+This database system is designed to manage the complex technical heart of a 5-star hotel. It ensures that luxury amenities—from smart room controls to industrial cooling systems—remain operational 24/7.
+
+The system tracks:
+* **Asset Registry:** Detailed inventory of all technical equipment and their health status.
+* **Service Tickets:** Complete lifecycle of maintenance requests, from reporting to resolution.
+* **Staff Management:** Assignment of tasks based on technician expertise (HVAC, Plumbing, Electrical).
+* **Vendor Contracts:** Coordination with external service providers for high-end infrastructure maintenance.
+
+# 🗃️ Data Managed in the System
+The system maintains a precise and comprehensive registry of all hotel **Infrastructure Assets**. This includes critical systems such as industrial chillers, elevators, smart guest-room control panels, and commercial kitchen equipment. 
+
+For every asset, the database tracks:
+* **Location & Placement:** Exact physical coordinates within the hotel.
+* **Installation Records:** Dates and warranty tracking.
+* **Fault History:** Comprehensive logs of past technical issues.
+* **Real-time Status:** Live health monitoring of technical systems.
+
+Additionally, the system manages the **Service Tickets** workflow, assigning maintenance tasks to technical staff, setting priority levels (Low, Medium, Critical), and documenting the entire repair lifecycle.
+
+# ⚙️ Main Functionality
+* **Asset Health Management (Asset Registry):** Monitoring and preventive maintenance of critical infrastructures to avoid system failures.
+* **Incident Tracking (Ticketing System):** A streamlined process for opening, documenting, and resolving maintenance tickets.
+* **Real-time Operational Monitoring:** A management dashboard displaying technician workloads and the status of guest-facing amenities.
+* **Guest Experience Optimization:** Ensuring operational continuity (AC, hot water, elevators) to provide an uninterrupted luxury stay for guests.
+
+---
+
+# 🖼️ UI Design (User Interface)
+The following four core screens were characterized and designed using **Google AI Studio**.
+### 🖥️ Screen 1: Dashboard Overview
+This is the **operational hub** of the system, providing a real-time snapshot of the hotel's technical health.
+
+* **Live Asset Monitoring:** High-level status cards for critical systems (Chillers, Guest Comfort, and Kitchen Facilities).
+* **Ticket Analytics:** Visual breakdown of **42 Active Tickets**, showing status distribution (Open, Pending, Resolved).
+* **Urgent Alerts:** A "Critical System Notice" section flagging high-priority issues, such as **AC units requiring service**.
+* **Session Tracking:** Displays the logged-in technician and current system date..
+  
 ![Dashboard Overview](./Step_A/Images/Screen1.png)
 
-### מסך 2: פתיחת קריאת שירות (New Service Ticket)
-טופס דינמי המאפשר למשתמש לדווח על תקלה, לבחור נכס מתוך ה-Registry ולקבוע רמת דחיפות.
+#### 📋 Screen 2: Infrastructure Asset Registry
+A centralized **inventory management** view displaying all technical assets managed within the database.
+
+* **Data Grid:** Comprehensive table showing **Asset ID, Name, Location (FK), Category, and Install Date**.
+* **Status Tracking:** Color-coded status labels for each asset (e.g., Active, Service Required, Maintenance).
+* **Advanced Filtering:** Capabilities to sort assets by location, status, or category.
+* **Management Actions:** Quick access buttons for viewing details, editing asset data, or logging a fault directly.
+  
 ![New Service Ticket](./Step_A/Images/Screen2.png)
 
-### מסך 3: סביבת עבודה לטכנאי (Technician's Workspace)
-ניהול המשימות האישיות של הטכנאי המחובר, כולל אפשרות לעדכון סטטוס וצפייה בפרטי התקלה.
+#### 🛠️ Screen 3: Technician's Workspace
+A personalized view for technical staff to manage their **assigned active tickets** and track repair progress.
+
+* **Task Cards:** Detailed visual cards for each ticket, displaying **Ticket ID, Asset Name, Location, Urgency, and Open Date**.
+* **Priority Visualization:** High-visibility urgency labels (Critical, Medium, Low) to help technicians prioritize their workflow.
+* **Workflow Actions:** Interactive buttons like **"Start Work"** and **"Update Status"** to update the database in real-time.
+* **Filtering & Focus:** Quick filters to sort tasks by status (e.g., Open), priority, or hotel wing.
+  
 ![Technician Workspace](./Step_A/Images/Screen3.png)
 
-### מסך 4: מרשם נכסי תשתית (Assets Registry)
-תצוגת טבלה מפורטת של כלל המערכות הטכניות במלון, השואבת נתונים ישירות מטבלת ה-Assets בבסיס הנתונים.
+### ➕ Screen 4: Open New Service Ticket
+A streamlined **data entry form** designed for reporting new infrastructure failures and initiating the repair workflow.
+
+* **Target Asset Selection:** A dynamic dropdown menu linked directly to the `Asset_Registry` (e.g., Chiller Unit A - North Roof).
+* **Issue Description:** A detailed input field for documenting technical failure symptoms.
+* **Priority Allocation:** Clear selection buttons for **Low, Medium, and Critical** urgency levels, which dictate the response SLA.
+* **Automated Metadata:** The system automatically captures the **"Opened_At"** timestamp (e.g., March 18, 2026) to ensure accurate tracking.
+  
 ![Assets Registry](./Step_A/Images/Screen4.png)
 
-## מודל נתונים (ERD & DSD)
+## 🗂️ ERD and DSD Diagrams
 
-לאחר אפיון המסכים ב-AI Studio, תרגמנו את הדרישות הפונקציונליות למודל נתונים לוגי ופיזי. בסיס הנתונים תוכנן בתוכנת **ERD PLUS** ועבר תהליך נרמול לסטנדרט **3NF** לפחות, כדי למנוע כפילויות ולהבטיח שלמות נתונים (Data Integrity).
+After characterizing the system screens in **Google AI Studio**, we translated the functional requirements into logical and physical data models. The database was designed using **ERD PLUS** and underwent a rigorous normalization process to at least **3rd Normal Form (3NF)** to eliminate redundancy and ensure absolute **Data Integrity**.
 
-### תרשים ישויות-קשרים (ERD - Entity Relationship Diagram)
-התרשים מציג את הישויות המרכזיות במערכת האחזקה של המלון, המאפיינים שלהן והקשרים הלוגיים ביניהן.
+### 🧩 ERD (Entity Relationship Diagram)
+The ERD illustrates the core entities within the hotel maintenance system, their specific attributes, and the logical relationships between them.
+
 ![ERD Diagram](./Step_A/ERD.png)
 
-### תרשים מבנה נתונים (DSD - Data Structure Diagram)
-תרשים ה-DSD מציג את המימוש הפיזי של הטבלאות, כולל הגדרת מפתחות ראשיים (PK), מפתחות זרים (FK) וסוגי הנתונים המדויקים (Varchar2, Int, Date).
+#### 📊 DSD (Data Structure Diagram)
+The DSD presents the physical implementation of the database, including Primary Keys (PK), Foreign Keys (FK), and precise data types (Varchar2, Int, Date).
+
 ![DSD Diagram](./Step_A/DBD.png)
 
 ---
+# 🗃️ Data Structure Description
 
-## החלטות עיצוב ונימוקים
+Below is a summary of the main entities and their fields as defined in the **ASTREA** Database Schema:
 
-בשלב תכנון בסיס הנתונים עבור אגף האחזקה של מלון ASTREA, קיבלנו מספר החלטות עיצוב מרכזיות על מנת לייצר מערכת יציבה ואופטימלית:
+### **Assets**
+Represents the technical infrastructure and equipment within the hotel.
+* **Asset_Id** (Primary Key)
+* **Asset_Name**
+* **Manufacturer**
+* **Model_Number**
+* **Ticket_ID** (Foreign Key)
+* **Log_Id** (Foreign Key)
 
-### 1. ניהול צוות ומומחיות (Staff Entity)
-* **החלטה:** הפרדנו את פרטי אנשי הצוות לישות עצמאית בשם `Staff`, הכוללת שדה `Expertise`.
-* **נימוק:** הפרדה זו מאפשרת לשייך קריאות שירות לטכנאים ספציפיים לפי תחום התמחותם (חשמל, אינסטלציה וכו'). זהו נרמול הכרחי המונע חזרה על פרטי הטכנאי (שם, טלפון) בכל קריאת שירות ומאפשר ניהול כוח אדם חכם ויעיל.
+### **Maintenance_Tickets**
+Manages the lifecycle of infrastructure repair requests.
+* **Ticket_ID** (Primary Key)
+* **Issue_Description**
+* **Opened_At** (Date)
+* **Resolved_At** (Date)
+* **Urgency_Level**
+* **Ticket_Status**
 
-### 2. שימוש משמעותי בתאריכים (DATE)
-* **החלטה:** הגדרנו שני מאפייני זמן קריטיים בטבלת `Maintenance_Tickets`: השדה `Opened_At` והשדה `Resolved_At`. 
-* **נימוק:** דרישה זו חיונית לניהול המלון. היא מאפשרת למדוד את משך זמן הטיפול בתקלה (SLA - Service Level Agreement), לנתח עומסי עבודה על הצוות ולייצר דוחות ביצועים תקופתיים המראים את זמני התגובה הממוצעים לכל מחלקה.
+### **Staff**
+Represents the technical personnel assigned to maintenance tasks.
+* **Staff_ID** (Primary Key)
+* **First_Name**
+* **Last_Name**
+* **Phone_Number**
+* **Expertise**
+* **Ticket_ID** (Foreign Key)
 
-### 3. תיעוד ובדיקות (Inspection_Log)
-* **החלטה:** יצרנו ישות נפרדת בשם `Inspection_Log` המקושרת לקריאות השירות.
-* **נימוק:** יצירת הפרדה ברורה בין תיאור הבעיה הראשוני (ב-Ticket) לבין תוצאות הבדיקה הטכנית שבוצעה בשטח. בטבלה זו נשמרים נתונים טכניים כמו `Tools_Used` ו-`Inspection_Result`, מה שמאפשר מעקב היסטורי מפורט על אופן הטיפול בנכסים יקרים במלון.
+### **Locations**
+Defines the physical areas and access levels within the hotel.
+* **Location_ID** (Primary Key)
+* **Floor_Number**
+* **Area_Name**
+* **Access_Level**
+* **Asset_Id** (Foreign Key)
 
-### 4. ניהול ספקים ואחריות חיצונית (Vendors)
-* **החלטה:** יצירת קשר ישיר בין נכסי התשתית (`Assets`) לבין הספקים שלהם (`Vendors`).
-* **נימוק:** במלון יוקרה, תשתיות מורכבות (מעליות, צ'ילרים) מתוחזקות לרוב על ידי חברות חיצוניות. שמירת פרטי הספק ומספר החוזה (`Contract_Number`) צמוד לנכס מאפשרת שליפה מיידית של איש קשר במקרה של תקלה קריטית, ומבטיחה מימוש זכויות אחריות ותחזוקה.
+### **Vendors**
+External contractors and equipment suppliers.
+* **Vendor_Id** (Primary Key)
+* **Company_Name**
+* **Contract_Number**
+* **Contact_Person**
+* **Asset_Id** (Foreign Key)
 
-### 5. מיפוי מיקומים מפורט (Locations)
-* **החלטה:** הגדרנו טבלת `Locations` הכוללת `Floor_Number`, `Area_Name` ו-`Access_Level`.
-* **נימוק:** מניעת כפילויות (Redundancy) ושמירה על אחידות בשמות האזורים במלון. שדה ה-`Access_Level` נוסף כדי לספק מידע בטיחותי וביטחוני לטכנאים (לדוגמה: האם נדרש אישור כניסה מיוחד לחדר המכונות או לגג).
+### **Inspection_Log**
+Detailed technical records of inspections and maintenance outcomes.
+* **Log_Id** (Primary Key)
+* **Inspection_Result**
+* **Technician_Result**
+* **Technician_Notes**
+* **Tools_Used**
+
+📄 **SQL table creation scripts are included in the Stage 1 folder.**
+
+# ⚙️ Design Decisions & Normalization
+
+During the architectural phase of the **ASTREA Hotel** database, several critical design decisions were made to ensure a high-performance, scalable, and stable system:
+
+### 1. Staff Management & Expertise (Staff Entity)
+* **Decision:** We isolated technical staff details into a dedicated `Staff` entity, featuring a specialized `Expertise` attribute.
+* **Reasoning:** This allows the system to intelligently assign service tickets based on a technician's specific skill set (e.g., Electrical, Plumbing, HVAC). This normalization step prevents data redundancy (storing names/phones repeatedly) and optimizes human resource management.
+
+### 2. Strategic Use of Temporal Data (DATE Fields)
+* **Decision:** We implemented two vital timestamp attributes in the `Maintenance_Tickets` table: `Opened_At` and `Resolved_At`.
+* **Reasoning:** This is essential for professional hotel management. It enables the measurement of **Resolution Time (SLA tracking)**, analyzes staff workload, and generates performance reports showing average response times across different departments.
+
+### 3. Comprehensive Technical Documentation (Inspection_Log)
+* **Decision:** A separate `Inspection_Log` entity was created and linked to each Service Ticket.
+* **Reasoning:** This creates a clear distinction between the initial problem description and the actual technical outcome. By storing data like `Tools_Used` and `Inspection_Result`, the system maintains a detailed historical record of how expensive assets are being serviced.
+
+### 4. Vendor & Warranty Integration (Vendors)
+* **Decision:** We established a direct relationship between Infrastructure `Assets` and their respective `Vendors`.
+* **Reasoning:** In a luxury environment, complex systems (elevators, chillers) are often maintained by third-party firms. Storing vendor details and the `Contract_Number` alongside the asset ensures immediate access to support during critical failures and guarantees warranty compliance.
+
+### 5. Granular Location Mapping (Locations)
+* **Decision:** The `Locations` table was designed with specific fields: `Floor_Number`, `Area_Name`, and `Access_Level`.
+* **Reasoning:** This eliminates data redundancy and maintains naming consistency across the hotel. The `Access_Level` attribute provides crucial safety and security information, informing technicians if special clearance is required for restricted areas like machine rooms or rooftops.
+## 📥 Data Insertion Methods
 
 
+
+### ✅ Method A: Python Script
+
+![Python Script Screenshot](images/python.png)
+
+---
+
+### ✅ Method B: Mockaroo Generator.
+
+![Mockaroo Screenshot](images/mockaroo.png)
+
+---
+
+### ✅ Method C: AI Studio
+.
+
+![AI Studio Screenshot](images/ai_studio_data.png)
+
+### ✅ Backup & Restore Strategy
+
+**Backup**
+![Backup Process](./%D7%A9%D7%9C%D7%91%20%D7%90/backup_success.png)
+
+**Restore**
+![Restore Validation](./%D7%A9%D7%9C%D7%91%20%D7%90/restore_success.png)
