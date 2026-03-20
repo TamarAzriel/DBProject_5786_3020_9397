@@ -201,20 +201,20 @@ During the architectural phase of the **ASTREA Hotel** database, several critica
 
 ### ✅ Method A: Python Script
 
-![Python Script Screenshot](images/python.png)
+![Python Script Screenshot](Step_A/Images/python.png)
 
 ---
 
 ### ✅ Method B: Mockaroo Generator.
 
-![Mockaroo Screenshot](images/mockaroo.png)
+![Mockaroo Screenshot](Step_A/Images/mockaroo.png)
 
 ---
 
 ### ✅ Method C: AI Studio
 .
 
-![AI Studio Screenshot](images/ai_studio_data.png)
+![AI Studio Screenshot](Step_A/Images/AI.png)
 
 ### ✅ Backup & Restore Strategy
 
