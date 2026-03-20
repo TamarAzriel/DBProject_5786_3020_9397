@@ -34,19 +34,19 @@
 
 ### מסך 1: דאשבורד ניהולי (Dashboard Overview)
 מבט על על מצב התשתיות, התראות דחופות וסטטיסטיקת קריאות שירות פתוחות.
-![Dashboard Overview](./שלב א/images/screen1.png)
+![Dashboard Overview](./Step_A/Images/Screen1.png)
 
 ### מסך 2: פתיחת קריאת שירות (New Service Ticket)
 טופס דינמי המאפשר למשתמש לדווח על תקלה, לבחור נכס מתוך ה-Registry ולקבוע רמת דחיפות.
-![New Service Ticket](./images/screen2.png)
+![New Service Ticket](./Step_A/Images/Screen2.png)
 
 ### מסך 3: סביבת עבודה לטכנאי (Technician's Workspace)
 ניהול המשימות האישיות של הטכנאי המחובר, כולל אפשרות לעדכון סטטוס וצפייה בפרטי התקלה.
-![Technician Workspace](./images/screen3.png)
+![Technician Workspace](./Step_A/Images/Screen3.png)
 
 ### מסך 4: מרשם נכסי תשתית (Assets Registry)
 תצוגת טבלה מפורטת של כלל המערכות הטכניות במלון, השואבת נתונים ישירות מטבלת ה-Assets בבסיס הנתונים.
-![Assets Registry](./images/screen4.png)
+![Assets Registry](./Step_A/Images/Screen4.png)
 
 ## מודל נתונים (ERD & DSD)
 
@@ -54,11 +54,11 @@
 
 ### תרשים ישויות-קשרים (ERD - Entity Relationship Diagram)
 התרשים מציג את הישויות המרכזיות במערכת האחזקה של המלון, המאפיינים שלהן והקשרים הלוגיים ביניהן.
-![ERD Diagram](./images/ERD.jpg)
+![ERD Diagram](./Step_A/ERD.png)
 
 ### תרשים מבנה נתונים (DSD - Data Structure Diagram)
 תרשים ה-DSD מציג את המימוש הפיזי של הטבלאות, כולל הגדרת מפתחות ראשיים (PK), מפתחות זרים (FK) וסוגי הנתונים המדויקים (Varchar2, Int, Date).
-![DSD Diagram](./images/DBD.jpg)
+![DSD Diagram](./Step_A/DBD.png)
 
 ---
 
