@@ -106,6 +106,8 @@ The **Asset Dossier** is a deep-dive diagnostic interface providing a 360-degree
   
 ![Assets Registry](./Step_A/Images/screen4.jpg)
 
+### 🔗 [View Live Interactive Prototype](https://aistudio.google.com/apps/55148c2e-690d-46d4-ab92-a373640f0e38?showAssistant=true&showPreview=true)
+
 ## 🗂️ ERD and DSD Diagrams
 
 After characterizing the system screens in **Google AI Studio**, we translated the functional requirements into logical and physical data models. The database was designed using **ERD PLUS** and underwent a rigorous normalization process to at least **3rd Normal Form (3NF)** to eliminate redundancy and ensure absolute **Data Integrity**.
