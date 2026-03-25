@@ -1,0 +1,501 @@
+location_id,floor_number,area_name,access_level
+1,10,Parking,Maintenance Only
+2,3,Roof,Staff Only
+3,3,Parking,Maintenance Only
+4,6,Suite 101,Staff Only
+5,12,Kitchen,Maintenance Only
+6,12,Restaurant,Public
+7,7,Kitchen,Maintenance Only
+8,18,Roof,Public
+9,6,Suite 102,Staff Only
+10,8,Laundry Room,Public
+11,6,Kitchen,Staff Only
+12,1,Spa,Staff Only
+13,20,Lobby,Staff Only
+14,6,Suite 101,Maintenance Only
+15,14,Suite 101,Public
+16,11,Spa,Staff Only
+17,6,Suite 102,Maintenance Only
+18,1,Suite 102,Maintenance Only
+19,12,Spa,Staff Only
+20,14,Suite 101,Staff Only
+21,7,Parking,Public
+22,17,Roof,Public
+23,7,Suite 101,Maintenance Only
+24,18,Spa,Maintenance Only
+25,13,Laundry Room,Staff Only
+26,6,Restaurant,Maintenance Only
+27,14,Laundry Room,Public
+28,7,Suite 102,Public
+29,13,Suite 101,Public
+30,12,Roof,Maintenance Only
+31,12,Laundry Room,Staff Only
+32,9,Laundry Room,Maintenance Only
+33,7,Lobby,Maintenance Only
+34,9,Suite 101,Staff Only
+35,18,Suite 102,Staff Only
+36,18,Suite 101,Maintenance Only
+37,11,Suite 101,Maintenance Only
+38,17,Spa,Staff Only
+39,19,Parking,Staff Only
+40,7,Suite 102,Public
+41,17,Parking,Staff Only
+42,5,Suite 102,Maintenance Only
+43,7,Spa,Staff Only
+44,17,Roof,Public
+45,10,Suite 101,Maintenance Only
+46,14,Kitchen,Maintenance Only
+47,14,Kitchen,Staff Only
+48,3,Suite 101,Maintenance Only
+49,14,Gym,Maintenance Only
+50,16,Gym,Public
+51,14,Spa,Public
+52,17,Restaurant,Maintenance Only
+53,6,Restaurant,Maintenance Only
+54,1,Parking,Maintenance Only
+55,3,Spa,Staff Only
+56,13,Suite 102,Staff Only
+57,5,Gym,Public
+58,12,Restaurant,Staff Only
+59,2,Gym,Maintenance Only
+60,14,Roof,Maintenance Only
+61,8,Lobby,Maintenance Only
+62,8,Restaurant,Staff Only
+63,12,Spa,Staff Only
+64,14,Parking,Public
+65,3,Gym,Maintenance Only
+66,5,Spa,Staff Only
+67,17,Kitchen,Maintenance Only
+68,6,Parking,Maintenance Only
+69,4,Suite 101,Public
+70,8,Suite 102,Staff Only
+71,2,Restaurant,Staff Only
+72,4,Suite 101,Staff Only
+73,2,Suite 102,Staff Only
+74,15,Roof,Maintenance Only
+75,20,Gym,Staff Only
+76,7,Lobby,Staff Only
+77,12,Roof,Staff Only
+78,16,Suite 101,Maintenance Only
+79,8,Roof,Maintenance Only
+80,6,Suite 101,Public
+81,18,Roof,Maintenance Only
+82,1,Lobby,Public
+83,12,Gym,Public
+84,9,Lobby,Staff Only
+85,18,Laundry Room,Maintenance Only
+86,14,Suite 102,Public
+87,14,Suite 102,Public
+88,3,Suite 102,Staff Only
+89,3,Roof,Public
+90,18,Suite 102,Public
+91,13,Kitchen,Public
+92,12,Suite 101,Maintenance Only
+93,3,Suite 101,Staff Only
+94,2,Roof,Public
+95,13,Laundry Room,Staff Only
+96,5,Parking,Maintenance Only
+97,18,Kitchen,Staff Only
+98,5,Gym,Staff Only
+99,11,Laundry Room,Staff Only
+100,3,Gym,Staff Only
+101,9,Kitchen,Public
+102,1,Spa,Public
+103,5,Lobby,Staff Only
+104,3,Laundry Room,Staff Only
+105,14,Restaurant,Maintenance Only
+106,18,Restaurant,Staff Only
+107,8,Lobby,Public
+108,3,Suite 102,Staff Only
+109,5,Laundry Room,Maintenance Only
+110,16,Kitchen,Maintenance Only
+111,3,Suite 101,Staff Only
+112,9,Laundry Room,Maintenance Only
+113,10,Suite 101,Staff Only
+114,8,Roof,Maintenance Only
+115,1,Kitchen,Maintenance Only
+116,7,Lobby,Public
+117,15,Gym,Staff Only
+118,2,Roof,Public
+119,14,Spa,Staff Only
+120,18,Roof,Staff Only
+121,5,Lobby,Public
+122,9,Laundry Room,Staff Only
+123,6,Kitchen,Maintenance Only
+124,17,Kitchen,Staff Only
+125,6,Roof,Staff Only
+126,14,Suite 102,Public
+127,12,Kitchen,Public
+128,3,Kitchen,Maintenance Only
+129,17,Kitchen,Maintenance Only
+130,6,Restaurant,Public
+131,12,Parking,Public
+132,9,Roof,Maintenance Only
+133,15,Kitchen,Staff Only
+134,4,Lobby,Public
+135,5,Restaurant,Staff Only
+136,2,Lobby,Public
+137,15,Suite 102,Staff Only
+138,9,Lobby,Maintenance Only
+139,1,Restaurant,Public
+140,16,Parking,Staff Only
+141,1,Lobby,Public
+142,17,Restaurant,Staff Only
+143,13,Kitchen,Maintenance Only
+144,19,Lobby,Maintenance Only
+145,7,Parking,Public
+146,6,Restaurant,Staff Only
+147,8,Restaurant,Maintenance Only
+148,12,Kitchen,Staff Only
+149,20,Lobby,Staff Only
+150,18,Lobby,Staff Only
+151,8,Parking,Public
+152,12,Parking,Staff Only
+153,7,Kitchen,Public
+154,19,Suite 101,Maintenance Only
+155,14,Lobby,Public
+156,13,Restaurant,Staff Only
+157,10,Parking,Staff Only
+158,10,Kitchen,Maintenance Only
+159,16,Lobby,Public
+160,15,Restaurant,Public
+161,19,Gym,Maintenance Only
+162,6,Laundry Room,Staff Only
+163,20,Lobby,Maintenance Only
+164,20,Suite 101,Maintenance Only
+165,9,Restaurant,Public
+166,14,Gym,Maintenance Only
+167,14,Suite 102,Public
+168,17,Lobby,Staff Only
+169,13,Gym,Staff Only
+170,10,Gym,Staff Only
+171,2,Suite 101,Maintenance Only
+172,7,Laundry Room,Public
+173,18,Spa,Maintenance Only
+174,4,Laundry Room,Staff Only
+175,5,Parking,Public
+176,4,Roof,Staff Only
+177,11,Suite 102,Staff Only
+178,8,Laundry Room,Maintenance Only
+179,17,Lobby,Maintenance Only
+180,10,Suite 102,Maintenance Only
+181,8,Roof,Staff Only
+182,3,Kitchen,Maintenance Only
+183,1,Lobby,Public
+184,2,Parking,Maintenance Only
+185,9,Roof,Staff Only
+186,17,Parking,Public
+187,19,Restaurant,Staff Only
+188,3,Roof,Public
+189,12,Kitchen,Staff Only
+190,2,Restaurant,Public
+191,18,Lobby,Maintenance Only
+192,2,Spa,Public
+193,19,Laundry Room,Maintenance Only
+194,18,Gym,Maintenance Only
+195,2,Kitchen,Maintenance Only
+196,5,Gym,Staff Only
+197,4,Laundry Room,Staff Only
+198,6,Parking,Public
+199,14,Spa,Maintenance Only
+200,7,Restaurant,Public
+201,12,Restaurant,Maintenance Only
+202,3,Restaurant,Maintenance Only
+203,17,Laundry Room,Maintenance Only
+204,10,Suite 102,Public
+205,14,Restaurant,Public
+206,3,Suite 102,Public
+207,14,Gym,Staff Only
+208,12,Parking,Staff Only
+209,20,Restaurant,Staff Only
+210,13,Restaurant,Public
+211,12,Parking,Public
+212,16,Roof,Public
+213,20,Parking,Staff Only
+214,10,Restaurant,Maintenance Only
+215,18,Lobby,Staff Only
+216,8,Gym,Maintenance Only
+217,8,Lobby,Maintenance Only
+218,9,Lobby,Staff Only
+219,13,Gym,Public
+220,11,Spa,Maintenance Only
+221,9,Parking,Staff Only
+222,2,Kitchen,Public
+223,17,Suite 101,Public
+224,8,Roof,Staff Only
+225,10,Gym,Maintenance Only
+226,7,Roof,Maintenance Only
+227,17,Gym,Staff Only
+228,10,Suite 101,Public
+229,9,Lobby,Public
+230,16,Parking,Public
+231,9,Spa,Public
+232,4,Lobby,Public
+233,4,Gym,Public
+234,7,Suite 101,Public
+235,19,Roof,Staff Only
+236,17,Gym,Public
+237,9,Parking,Staff Only
+238,17,Spa,Public
+239,10,Kitchen,Public
+240,8,Gym,Public
+241,15,Roof,Maintenance Only
+242,4,Gym,Maintenance Only
+243,4,Suite 101,Staff Only
+244,6,Suite 101,Staff Only
+245,16,Restaurant,Maintenance Only
+246,12,Restaurant,Staff Only
+247,13,Lobby,Maintenance Only
+248,11,Spa,Maintenance Only
+249,12,Kitchen,Staff Only
+250,14,Lobby,Public
+251,4,Spa,Maintenance Only
+252,15,Suite 102,Maintenance Only
+253,16,Restaurant,Public
+254,12,Suite 101,Public
+255,7,Gym,Maintenance Only
+256,2,Roof,Staff Only
+257,19,Laundry Room,Maintenance Only
+258,5,Lobby,Maintenance Only
+259,11,Parking,Staff Only
+260,14,Spa,Public
+261,10,Laundry Room,Staff Only
+262,18,Lobby,Public
+263,9,Roof,Maintenance Only
+264,16,Restaurant,Public
+265,9,Suite 102,Staff Only
+266,11,Laundry Room,Staff Only
+267,20,Gym,Maintenance Only
+268,6,Parking,Public
+269,1,Roof,Maintenance Only
+270,20,Parking,Public
+271,10,Parking,Public
+272,16,Roof,Maintenance Only
+273,15,Restaurant,Staff Only
+274,15,Lobby,Maintenance Only
+275,1,Kitchen,Public
+276,11,Suite 101,Public
+277,2,Spa,Public
+278,2,Suite 102,Public
+279,18,Parking,Maintenance Only
+280,6,Kitchen,Staff Only
+281,10,Laundry Room,Public
+282,19,Suite 102,Public
+283,6,Suite 102,Maintenance Only
+284,12,Lobby,Public
+285,2,Suite 101,Public
+286,4,Parking,Maintenance Only
+287,8,Suite 101,Maintenance Only
+288,8,Spa,Maintenance Only
+289,11,Suite 102,Maintenance Only
+290,7,Spa,Maintenance Only
+291,3,Lobby,Public
+292,1,Suite 102,Public
+293,4,Suite 102,Public
+294,7,Roof,Maintenance Only
+295,9,Spa,Public
+296,9,Suite 101,Maintenance Only
+297,9,Parking,Public
+298,6,Suite 102,Staff Only
+299,16,Laundry Room,Public
+300,2,Roof,Public
+301,10,Restaurant,Public
+302,1,Kitchen,Maintenance Only
+303,10,Spa,Staff Only
+304,18,Suite 102,Maintenance Only
+305,6,Suite 102,Staff Only
+306,9,Suite 102,Maintenance Only
+307,7,Lobby,Public
+308,4,Roof,Maintenance Only
+309,17,Parking,Public
+310,20,Suite 101,Maintenance Only
+311,8,Kitchen,Maintenance Only
+312,11,Gym,Maintenance Only
+313,9,Gym,Maintenance Only
+314,19,Spa,Public
+315,12,Spa,Public
+316,16,Parking,Maintenance Only
+317,17,Suite 102,Public
+318,11,Laundry Room,Maintenance Only
+319,9,Gym,Maintenance Only
+320,20,Restaurant,Public
+321,9,Kitchen,Staff Only
+322,14,Parking,Staff Only
+323,12,Restaurant,Staff Only
+324,15,Gym,Public
+325,4,Laundry Room,Staff Only
+326,17,Spa,Maintenance Only
+327,2,Gym,Staff Only
+328,14,Spa,Staff Only
+329,8,Restaurant,Public
+330,5,Parking,Staff Only
+331,20,Restaurant,Maintenance Only
+332,7,Suite 102,Maintenance Only
+333,11,Gym,Staff Only
+334,20,Laundry Room,Maintenance Only
+335,16,Suite 102,Public
+336,14,Parking,Maintenance Only
+337,18,Suite 102,Public
+338,20,Suite 101,Public
+339,14,Laundry Room,Staff Only
+340,19,Spa,Staff Only
+341,4,Parking,Maintenance Only
+342,11,Lobby,Maintenance Only
+343,5,Parking,Public
+344,5,Laundry Room,Public
+345,8,Kitchen,Public
+346,7,Laundry Room,Maintenance Only
+347,9,Roof,Public
+348,18,Suite 102,Maintenance Only
+349,18,Kitchen,Maintenance Only
+350,18,Restaurant,Public
+351,6,Suite 101,Maintenance Only
+352,3,Spa,Staff Only
+353,17,Lobby,Staff Only
+354,3,Parking,Maintenance Only
+355,10,Lobby,Maintenance Only
+356,3,Spa,Maintenance Only
+357,14,Gym,Public
+358,10,Suite 102,Maintenance Only
+359,7,Suite 101,Public
+360,6,Suite 101,Public
+361,20,Restaurant,Staff Only
+362,19,Spa,Maintenance Only
+363,7,Spa,Public
+364,15,Kitchen,Public
+365,16,Restaurant,Public
+366,8,Roof,Staff Only
+367,9,Gym,Maintenance Only
+368,16,Parking,Public
+369,8,Suite 101,Maintenance Only
+370,1,Suite 102,Maintenance Only
+371,11,Parking,Public
+372,4,Gym,Maintenance Only
+373,7,Gym,Maintenance Only
+374,14,Gym,Public
+375,4,Restaurant,Maintenance Only
+376,14,Parking,Staff Only
+377,8,Kitchen,Staff Only
+378,2,Laundry Room,Staff Only
+379,7,Gym,Maintenance Only
+380,9,Suite 102,Staff Only
+381,8,Kitchen,Staff Only
+382,6,Suite 101,Staff Only
+383,8,Lobby,Maintenance Only
+384,8,Kitchen,Staff Only
+385,15,Roof,Maintenance Only
+386,7,Suite 102,Public
+387,1,Laundry Room,Staff Only
+388,2,Lobby,Staff Only
+389,1,Parking,Maintenance Only
+390,10,Parking,Maintenance Only
+391,20,Restaurant,Staff Only
+392,18,Lobby,Staff Only
+393,1,Gym,Staff Only
+394,16,Suite 101,Maintenance Only
+395,19,Lobby,Maintenance Only
+396,4,Restaurant,Maintenance Only
+397,13,Kitchen,Maintenance Only
+398,12,Suite 102,Staff Only
+399,12,Kitchen,Maintenance Only
+400,4,Gym,Maintenance Only
+401,19,Lobby,Maintenance Only
+402,6,Suite 102,Maintenance Only
+403,6,Spa,Staff Only
+404,18,Lobby,Staff Only
+405,11,Restaurant,Public
+406,11,Gym,Public
+407,18,Lobby,Staff Only
+408,18,Lobby,Staff Only
+409,6,Parking,Maintenance Only
+410,20,Restaurant,Maintenance Only
+411,17,Roof,Public
+412,18,Gym,Maintenance Only
+413,9,Spa,Staff Only
+414,11,Spa,Maintenance Only
+415,10,Lobby,Public
+416,20,Parking,Staff Only
+417,16,Lobby,Maintenance Only
+418,7,Restaurant,Public
+419,17,Roof,Public
+420,10,Roof,Staff Only
+421,6,Parking,Maintenance Only
+422,7,Suite 101,Staff Only
+423,2,Spa,Public
+424,19,Roof,Public
+425,14,Laundry Room,Maintenance Only
+426,19,Restaurant,Public
+427,19,Suite 101,Maintenance Only
+428,7,Suite 102,Staff Only
+429,14,Lobby,Staff Only
+430,17,Laundry Room,Staff Only
+431,16,Lobby,Public
+432,2,Roof,Public
+433,10,Spa,Public
+434,7,Laundry Room,Public
+435,4,Parking,Maintenance Only
+436,5,Suite 101,Public
+437,11,Suite 102,Maintenance Only
+438,2,Kitchen,Staff Only
+439,14,Laundry Room,Staff Only
+440,6,Spa,Public
+441,8,Suite 101,Public
+442,4,Roof,Staff Only
+443,5,Parking,Staff Only
+444,2,Laundry Room,Maintenance Only
+445,13,Laundry Room,Staff Only
+446,15,Parking,Public
+447,13,Roof,Maintenance Only
+448,12,Gym,Maintenance Only
+449,5,Kitchen,Maintenance Only
+450,11,Restaurant,Staff Only
+451,7,Lobby,Staff Only
+452,15,Spa,Staff Only
+453,19,Restaurant,Public
+454,3,Restaurant,Public
+455,9,Laundry Room,Staff Only
+456,4,Laundry Room,Maintenance Only
+457,18,Spa,Maintenance Only
+458,20,Parking,Staff Only
+459,8,Roof,Public
+460,15,Roof,Maintenance Only
+461,17,Suite 102,Staff Only
+462,12,Lobby,Public
+463,2,Spa,Public
+464,19,Spa,Public
+465,7,Suite 101,Maintenance Only
+466,17,Gym,Maintenance Only
+467,15,Lobby,Maintenance Only
+468,20,Roof,Maintenance Only
+469,17,Laundry Room,Maintenance Only
+470,3,Spa,Maintenance Only
+471,14,Lobby,Maintenance Only
+472,4,Suite 101,Maintenance Only
+473,12,Laundry Room,Public
+474,3,Suite 102,Maintenance Only
+475,11,Gym,Staff Only
+476,14,Lobby,Staff Only
+477,19,Spa,Maintenance Only
+478,18,Laundry Room,Maintenance Only
+479,16,Roof,Maintenance Only
+480,16,Kitchen,Public
+481,5,Restaurant,Maintenance Only
+482,4,Restaurant,Public
+483,16,Parking,Public
+484,12,Spa,Maintenance Only
+485,10,Restaurant,Maintenance Only
+486,17,Restaurant,Maintenance Only
+487,11,Suite 102,Maintenance Only
+488,19,Roof,Public
+489,1,Roof,Public
+490,11,Lobby,Public
+491,9,Restaurant,Public
+492,15,Suite 102,Public
+493,5,Kitchen,Staff Only
+494,13,Roof,Staff Only
+495,16,Roof,Public
+496,3,Parking,Public
+497,4,Gym,Staff Only
+498,6,Spa,Maintenance Only
+499,10,Spa,Staff Only
+500,11,Suite 102,Public
