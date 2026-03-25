@@ -184,13 +184,15 @@ Detailed technical audit trail for routine checks.
 
 ### ✅ Method A: Python Script
 
-![Python Script Screenshot](Step_A/Images/python.png)
+![Python Script Screenshot](Step_A/Images/python.jpg)
 
 ---
 
 ### ✅ Method B: Mockaroo Generator.
 
 ![Mockaroo Screenshot](Step_A/Images/mock.jpg)
+![CSV Export](Step_A/Images/csv.jpg)
+
 
 ---
 
