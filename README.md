@@ -244,7 +244,6 @@ JOIN MAINTENANCE_TICKETS T ON S.Staff_ID = T.Staff_ID
 WHERE T.Ticket_Status = 'Closed' AND EXTRACT(YEAR FROM T.Opened_At) = 2025
 GROUP BY S.Staff_ID, S.First_Name, S.Last_Name, S.Phone_Number
 HAVING COUNT(T.Ticket_ID) > 5;
-
 -- צורה ב' (Subquery)
 SELECT First_Name, Last_Name, Phone_Number
 FROM STAFF
@@ -257,7 +256,7 @@ WHERE Staff_ID IN (
 );
 ```
 **צילומי מסך:**
-![הכנס תמונה כאן](./Images/your_image_name.png)
+![הכנס תמונה כאן./Step_B/images/Q1a.jpg/.)
 
 **הסבר ויעילות:** **צורה א' (JOIN) עדיפה ויעילה יותר.** מנוע בסיס הנתונים המודרני מותאם לבצע אופטימיזציה לחיבור (JOIN) של טבלאות בבת אחת (למשל בעזרת Hash Join או Merge Join). לעומת זאת, צורה ב' (Subquery עם IN) עלולה לאלץ את המנוע לבצע סריקות נפרדות – קודם לחשב את התת-שאילתה במלואה ורק אז לסנן את טבלת ה-STAFF. ה-JOIN מונע סריקות כפולות של נתונים וחוסך במשאבי זיכרון.
 
@@ -325,12 +324,12 @@ WHERE Vendor_ID IN (
 -- צורה א' (שימוש בפונקציה על העמודה)
 SELECT Issue_Description, Opened_At, Resolved_At
 FROM MAINTENANCE_TICKETS
-WHERE DATE_PART('day', Resolved_At - Opened_At) = 0;
+WHERE Resolved_At - Opened_At = 0;
 
 -- צורה ב' (השוואה ישירה עם המרה)
 SELECT Issue_Description, Opened_At, Resolved_At
 FROM MAINTENANCE_TICKETS
-WHERE CAST(Opened_At AS DATE) = CAST(Resolved_At AS DATE);
+WHERE Opened_At = Resolved_At;
 ```
 **צילומי מסך:**
 ![הכנס תמונה כאן](./Images/your_image_name.png)
@@ -348,10 +347,13 @@ WHERE CAST(Opened_At AS DATE) = CAST(Resolved_At AS DATE);
 
 **קוד השאילתה:**
 ```sql
-SELECT EXTRACT(YEAR FROM Opened_At) AS Year, EXTRACT(MONTH FROM Opened_At) AS Month, COUNT(*) AS Total_Tickets
-FROM MAINTENANCE_TICKETS
-GROUP BY EXTRACT(YEAR FROM Opened_At), EXTRACT(MONTH FROM Opened_At)
-ORDER BY Year DESC, Month DESC;
+SELECT First_Name, Last_Name, Expertise
+FROM STAFF S
+WHERE NOT EXISTS (
+    SELECT 1 FROM MAINTENANCE_TICKETS T 
+    WHERE T.Staff_ID = S.Staff_ID 
+    AND T.Opened_At > CURRENT_DATE - INTERVAL '1 month'
+);
 ```
 
 **צילומי מסך:**
@@ -384,12 +386,13 @@ WHERE NOT EXISTS (
 
 **קוד השאילתה:**
 ```sql
-SELECT A.Asset_Name, A.Manufacturer, COUNT(I.Log_Id) AS Failed_Inspections
+SELECT A.Asset_Name, A.Manufacturer, S.First_Name, S.Last_Name, COUNT(I.Log_Id) AS Failed_Inspections
 FROM ASSETS A
 JOIN INSPECTION_LOG I ON A.Asset_ID = I.Asset_ID
+JOIN STAFF S ON I.Staff_ID = S.Staff_ID
 WHERE I.Inspection_Result = 'Fail'
-GROUP BY A.Asset_ID, A.Asset_Name, A.Manufacturer
-HAVING COUNT(I.Log_Id) > 3
+GROUP BY A.Asset_ID, A.Asset_Name, A.Manufacturer, S.First_Name, S.Last_Name
+HAVING COUNT(I.Log_Id) > 0
 ORDER BY Failed_Inspections DESC;
 ```
 
@@ -426,8 +429,7 @@ ORDER BY L.Floor_Number ASC;
 ```sql
 UPDATE MAINTENANCE_TICKETS
 SET Urgency_Level = 'Urgent'
-WHERE Ticket_Status = 'Open' 
-  AND Opened_At < CURRENT_DATE - INTERVAL '14 days';
+WHERE Ticket_Status = 'Open' AND Opened_At < CURRENT_DATE - INTERVAL '14 days';
 ```
 **תיעוד הביצוע:**
 * **לפני העדכון:** ![לפני העדכון](./Images/Before_Update.png)
@@ -460,7 +462,6 @@ WHERE Asset_ID IN (
 UPDATE MAINTENANCE_TICKETS
 SET Resolved_At = CURRENT_DATE
 WHERE Ticket_Status = 'Closed' AND Resolved_At IS NULL;
-);
 ```
 **תיעוד הביצוע:**
 * **לפני העדכון:** ![לפני העדכון](./Images/Before_Update.png)
@@ -550,12 +551,8 @@ WHERE Ticket_Status = 'Closed' AND Resolved_At IS NULL;
 תיאור השאילתה: השאילתה מוחקת רשומות מיומן הבדיקות (Inspection_Log) שעונות על שני תנאים: הבדיקה עברה בהצלחה (Pass) והיא התבצעה לפני שנת 2024. אין צורך לשמור היסטוריית תקינות ישנה במערכת הפעילה, ופעולה זו מקטינה את גודל הטבלה ומשפרת ביצועים.
 **קוד השאילתה:**
 ```sql
-DELETE FROM LOCATIONS
-WHERE Location_ID NOT IN (
-    SELECT DISTINCT Location_ID 
-    FROM ASSETS 
-    WHERE Location_ID IS NOT NULL
-);
+DELETE FROM INSPECTION_LOG
+WHERE Inspection_Result = 'Pass' AND Inspection_Date < '2024-01-01';
 ```
 **תיעוד הביצוע:**
 * **לפני המחיקה:** ![לפני העדכון](./Images/Before_Update.png)
@@ -595,3 +592,111 @@ WHERE Vendor_ID NOT IN (
 * **לפני המחיקה:** ![לפני העדכון](./Images/Before_Update.png)
 * **הרצת הפקודה:** ![הרצת הפקודה](./Images/Execute_Update.png)
 * **אחרי המחיקה:** ![אחרי העדכון](./Images/After_Update.png)
+
+
+## 🛡️ אילוצים (Constraints)
+
+בחלק זה הוספנו הגנות ברמת בסיס הנתונים כדי למנוע הזנת נתונים לא הגיוניים או שגויים, השומרים על שלמות ואמינות המידע (Data Integrity).
+
+### אילוץ 1: בדיקת תאריכים הגיוניים (תאריך סיום לעומת פתיחה)
+**תיאור השינוי:** הוספנו אילוץ לטבלת `MAINTENANCE_TICKETS` שמוודא שתאריך סגירת התקלה (`Resolved_At`) לא יכול להיות מוקדם יותר מתאריך פתיחת התקלה (`Opened_At`). 
+
+**קוד יצירת האילוץ (`ALTER TABLE`):**
+```sql
+ALTER TABLE MAINTENANCE_TICKETS
+ADD CONSTRAINT chk_ticket_dates 
+CHECK (Resolved_At IS NULL OR Resolved_At >= Opened_At);
+```
+
+**ניסיון הפרת האילוץ (הזנת תאריך סגירה שקודם לפתיחה):**
+
+```sql
+INSERT INTO MAINTENANCE_TICKETS (Ticket_ID, Asset_Id, Staff_Id, Issue_Description, Opened_At, Resolved_At, Urgency_Level, Ticket_Status) 
+VALUES (9001, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STAFF), 'Time Travel Error', '2026-05-10', '2026-05-01', 'Low', 'Closed');
+```
+
+צילום שגיאת ההרצה:
+
+
+### אילוץ 2: בדיקת טווח קומות הגיוני במלון
+**תיאור השינוי:** הוספנו אילוץ לטבלת LOCATIONS שמוודא שמספר הקומה (Floor_Number) חייב להיות בטווח ההגיוני של המבנה (בין קומה מינוס 2 לחניון, ועד קומה 50).
+**קוד יצירת האילוץ (`ALTER TABLE`):**
+```sql
+ALTER TABLE LOCATIONS
+ADD CONSTRAINT chk_floor_range 
+CHECK (Floor_Number >= -2 AND Floor_Number <= 50);
+```
+
+**ניסיון הפרת האילוץ (הזנת קומה 100 שאינה קיימת):**
+
+```sql
+INSERT INTO LOCATIONS (Location_ID, Floor_Number, Area_Name, Access_Level) 
+VALUES (9002, 100, 'Rooftop Antenna', 'Staff');
+```
+
+צילום שגיאת ההרצה:
+
+
+### אילוץ 3: הגבלת ערכי הסטטוס של תקלה
+**תיאור השינוי:** הוספנו אילוץ לטבלת MAINTENANCE_TICKETS המגביל את עמודת מצב התקלה (Ticket_Status) לערכים מוגדרים מראש בלבד, כדי למנוע טעויות הקלדה.
+**קוד יצירת האילוץ (`ALTER TABLE`):**
+```sql
+ALTER TABLE MAINTENANCE_TICKETS
+ADD CONSTRAINT chk_status_values 
+CHECK (Ticket_Status IN ('Open', 'In Progress', 'Closed', 'Cancelled'));
+```
+
+**ניסיון הפרת האילוץ (הזנהזנת סטטוס מומצא בשם 'Magic'):**
+
+```sql
+INSERT INTO MAINTENANCE_TICKETS (Ticket_ID, Asset_Id, Staff_Id, Issue_Description, Opened_At, Resolved_At, Urgency_Level, Ticket_Status) 
+VALUES (9003, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STAFF), 'Test Status', CURRENT_DATE, NULL, 'Low', 'Magic');
+```
+
+צילום שגיאת ההרצה:
+
+
+### אילוץ 3: ההגבלת רמות הדחיפות (Urgency)
+**תיאור השינוי:** בדומה לאילוץ הסטטוס, הוספנו אילוץ לטבלת MAINTENANCE_TICKETS המגביל את עמודת רמת הדחיפות (Urgency_Level) לסולם ערכים קבוע ומורשה.
+**קוד יצירת האילוץ (ALTER TABLE):**
+```sql
+ALTER TABLE MAINTENANCE_TICKETS
+ADD CONSTRAINT chk_urgency_level 
+CHECK (Urgency_Level IN ('Low', 'Medium', 'High', 'Urgent'));
+```
+
+**ניסיון הפרת האילוץ (הזנת רמת דחיפות שאינה ברשימה - 'Super Fast'):**
+
+```sql
+INSERT INTO MAINTENANCE_TICKETS (Ticket_ID, Asset_Id, Staff_Id, Issue_Description, Opened_At, Resolved_At, Urgency_Level, Ticket_Status) 
+VALUES (9004, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STAFF), 'Test Urgency', CURRENT_DATE, NULL, 'Super Fast', 'Open');
+```
+
+צילום שגיאת ההרצה:
+
+
+
+## 💾 ניהול עסקאות (Transactions)
+
+בשלב זה הדגמנו את היכולת של בסיס הנתונים לנהל עסקאות בצורה בטוחה, המאפשרת ביטול פעולות שבוצעו בטעות או שמירה סופית שלהן.
+
+### חלק 1: ביטול פעולה בעזרת ROLLBACK
+**תיאור:** ביצענו מחיקה של כל עובדי הצוות בתוך עסקה פעילה. לאחר מכן, השתמשנו בפקודת `ROLLBACK` כדי להחזיר את המצב לקדמותו ולהוכיח שהנתונים לא אבדו.
+
+* **מצב 1: הטבלה לפני המחיקה:**
+![לפני](Step_B/images/Rollback_1_Before.png)
+* **מצב 2: בתוך העסקה (הנתונים נמחקו זמנית):**
+![נמחק](Step_B/images/Rollback_2_Deleted.png)
+* **מצב 3: לאחר ROLLBACK (הנתונים שוחזרו):**
+![שוחזר](Step_B/images/Rollback_3_Recovered.png)
+
+---
+
+### חלק 2: שמירת שינויים בעזרת COMMIT
+**תיאור:** ביצענו עדכון של פרטי ספק וסגרנו את העסקה בעזרת `COMMIT`. לאחר השמירה, ניסינו לבצע `ROLLBACK` כדי להראות שברגע שהעסקה נחתמה, השינוי הופך לקבוע בבסיס הנתונים.
+
+* **ביצוע העדכון והשמירה הסופית:**
+![ביצוע COMMIT](Step_B/images/Commit_1_Run.png)
+* **בדיקה לאחר ניסיון ביטול (השינוי נשאר קבוע):**
+![תוצאה סופית](Step_B/images/Commit_2_Final.png)
+
