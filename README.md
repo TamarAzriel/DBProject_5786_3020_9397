@@ -1,4 +1,4 @@
-# DBProject_3020_9397
+<img width="850" height="755" alt="image" src="https://github.com/user-attachments/assets/19ec06f2-9680-42dd-af26-2a5022ba06cd" /># DBProject_3020_9397
 ## DPBPROJECT Hotel - Infrastructure & Maintenance Database System
 
 ---
@@ -184,13 +184,15 @@ Detailed technical audit trail for routine checks.
 
 ### ✅ Method A: Python Script
 
-![Python Script Screenshot](Step_A/Images/python.png)
+![Python Script Screenshot](Step_A/Images/python.jpg)
 
 ---
 
 ### ✅ Method B: Mockaroo Generator.
 
 ![Mockaroo Screenshot](Step_A/Images/mock.jpg)
+![CSV Export](Step_A/Images/csv.jpg)
+
 
 ---
 
@@ -215,3 +217,488 @@ Detailed technical audit trail for routine checks.
 
 
 ![Restore Validation](Step_A/Images/restore.jpg)
+
+
+
+
+
+
+# 🚀 Step B: Advanced Data Querying & Schema Refinement
+
+**Overview:** In this phase, we developed efficient, UI-aligned queries to extract actionable operational insights and refined our database schema using `ALTER TABLE` commands to perfectly support the system's functional requirements.
+
+## 🔍 חקירת נתונים ותשאול מתקדם (Double Queries)
+בחלק זה ביצענו תשאול של בסיס הנתונים באמצעות שאילתות מורכבות. עבור דרישות מסוימות, כתבנו את השאילתות בשתי צורות שונות (כגון שימוש ב-JOIN לעומת Subquery) במטרה לבחון ולהבין את הבדלי היעילות ואופן הפעולה של מנוע בסיס הנתונים (Query Optimizer).
+
+---
+
+### 📌 שאילתה 1: טכנאים מצטיינים בסגירת תקלות דחופות
+**תיאור השאילתה:** השאילתה מציגה את פרטי הטכנאים (שם, משפחה וטלפון) שסגרו מעל 5 תקלות דחופות במהלך שנת 2025, יחד עם כמות התקלות הכוללת שסגרו. המטרה היא לאתר טכנאים בעלי עומס עבודה גבוה או תפוקה גבוהה לטובת תגמול.
+
+**קוד השאילתה:**
+```sql
+-- צורה א' (JOIN)
+SELECT S.First_Name, S.Last_Name, S.Phone_Number, COUNT(T.Ticket_ID) AS Total_Closed
+FROM STAFF S
+JOIN MAINTENANCE_TICKETS T ON S.Staff_ID = T.Staff_ID
+WHERE T.Ticket_Status = 'Closed' AND EXTRACT(YEAR FROM T.Opened_At) = 2025
+GROUP BY S.Staff_ID, S.First_Name, S.Last_Name, S.Phone_Number
+HAVING COUNT(T.Ticket_ID) > 5;
+-- צורה ב' (Subquery)
+SELECT First_Name, Last_Name, Phone_Number
+FROM STAFF
+WHERE Staff_ID IN (
+    SELECT Staff_ID 
+    FROM MAINTENANCE_TICKETS
+    WHERE Ticket_Status = 'Closed' AND EXTRACT(YEAR FROM Opened_At) = 2025
+    GROUP BY Staff_ID 
+    HAVING COUNT(Ticket_ID) > 5
+);
+```
+**צילומי מסך:**
+![הכנס תמונה כאן./Step_B/images/Q1a.jpg/.)
+
+**הסבר ויעילות:** **צורה א' (JOIN) עדיפה ויעילה יותר.** מנוע בסיס הנתונים המודרני מותאם לבצע אופטימיזציה לחיבור (JOIN) של טבלאות בבת אחת (למשל בעזרת Hash Join או Merge Join). לעומת זאת, צורה ב' (Subquery עם IN) עלולה לאלץ את המנוע לבצע סריקות נפרדות – קודם לחשב את התת-שאילתה במלואה ורק אז לסנן את טבלת ה-STAFF. ה-JOIN מונע סריקות כפולות של נתונים וחוסך במשאבי זיכרון.
+
+
+### 📌 שאילתה 2: נכסים הממוקמים באזורים ציבוריים 
+**תיאור השאילתה:** השאילתה שולפת רשימה ייחודית של שמות נכסים ויצרנים עבור ציוד הממוקם באזורים בעלי רמת גישה ציבורית (Public). מידע זה רלוונטי להערכת סיכונים של השחתת ציוד על ידי אורחים.
+
+**קוד השאילתה:**
+```sql
+-- צורה א' (JOIN)
+SELECT DISTINCT A.Asset_Name, A.Manufacturer
+FROM ASSETS A
+JOIN LOCATIONS L ON A.Location_ID = L.Location_ID
+WHERE L.Access_Level = 'Public';
+
+-- צורה ב' (EXISTS)
+SELECT Asset_Name, Manufacturer
+FROM ASSETS A
+WHERE EXISTS (
+    SELECT 1 
+    FROM LOCATIONS L 
+    WHERE L.Location_ID = A.Location_ID AND L.Access_Level = 'Public'
+);
+```
+**צילומי מסך:**
+![לפני העדכון](Step_B/images/Q1a.jpg)
+
+**הסבר ויעילות:** במקרה זה, צורה ב' (EXISTS) נוטה להיות מהירה ויעילה יותר, במיוחד כאשר טבלת המיקומים גדולה. הפקודה EXISTS פועלת במנגנון של "Short-Circuit" (עצירה מהירה) – ברגע שהמנוע מוצא התאמה אחת בטבלת LOCATIONS עבור הנכס הספציפי, הוא מפסיק לחפש ומחזיר TRUE. לעומת זאת, שימוש ב-JOIN (צורה א') עלול לייצר מכפלה של רשומות שאותן צריך לצמצם לאחר מכן באמצעות הפקודה היקרה DISTINCT, מה שגורם לעבודת מיון וסינון מיותרת.
+
+
+
+### 📌 שאילתה 3: ספקים שציוד שלהם חווה תקלה קריטית כעת 
+**תיאור השאילתה:** השאילתה מאתרת את שמות החברות ואנשי הקשר של ספקים (Vendors) שסיפקו נכסים אשר מדווחים כרגע עם תקלה פתוחה בדרגת דחיפות 'קריטית'. שאילתה זו חיונית להתקשרות חירום עם ספקים לתיקון ציוד.
+**קוד השאילתה:**
+```sql
+-- צורה א' (JOIN כפול)
+SELECT DISTINCT V.Company_Name, V.Contact_Person
+FROM VENDORS V
+JOIN ASSETS A ON V.Vendor_ID = A.Vendor_ID
+JOIN MAINTENANCE_TICKETS T ON A.Asset_ID = T.Asset_ID
+WHERE T.Ticket_Status = 'Open' AND T.Urgency_Level = 'Urgent';
+
+-- צורה ב' (Nested IN - קינון עמוק)
+SELECT Company_Name, Contact_Person 
+FROM VENDORS 
+WHERE Vendor_ID IN (
+    SELECT Vendor_ID FROM ASSETS WHERE Asset_ID IN (
+        SELECT Asset_ID FROM MAINTENANCE_TICKETS 
+        WHERE Ticket_Status = 'Open' AND Urgency_Level = 'Urgent'
+    )
+);
+```
+**צילומי מסך:**
+![הכנס תמונה כאן](./Images/your_image_name.png)
+
+**הסבר ויעילות:** צורה א' (JOIN) היא היעילה ביותר כאן. שימוש בתת-שאילתות מקוננות (Nested IN) כפי שמוצג בצורה ב' יוצר צוואר בקבוק עיבודי. בסיס הנתונים נאלץ לרוב לבצע את הפעולות בצורה סדרתית מהפנים החוצה. לעומת זאת, כאשר משתמשים ב-JOIN, ה-Optimizer רואה את כל התמונה ויכול לבחור את סדר קריאת הטבלאות המהיר ביותר (למשל, להתחיל מטבלת התקלות שהיא הקטנה ביותר לאחר סינון הסטטוס, ורק אז להצליב למפתחות הזרים של הספקים).
+
+
+
+
+### 📌 שאילתה 4: תקלות שנסגרו ביום הפתיחה (SLA מיידי) 
+**תיאור השאילתה:** השאילתה מחזירה את תיאור התקלה ואת זמני הפתיחה והסגירה עבור תקלות שתוקנו ונסגרו באותו היום שבו נפתחו. נתון זה מעיד על יעילות שיא של צוות התחזוקה.
+**קוד השאילתה:**
+```sql
+-- צורה א' (שימוש בפונקציה על העמודה)
+SELECT Issue_Description, Opened_At, Resolved_At
+FROM MAINTENANCE_TICKETS
+WHERE Resolved_At - Opened_At = 0;
+
+-- צורה ב' (השוואה ישירה עם המרה)
+SELECT Issue_Description, Opened_At, Resolved_At
+FROM MAINTENANCE_TICKETS
+WHERE Opened_At = Resolved_At;
+```
+**צילומי מסך:**
+![הכנס תמונה כאן](./Images/your_image_name.png)
+
+**הסבר ויעילות:** באופן כללי, צורה ב' עדיפה. הפעלת פונקציה אריתמטית או פונקציית תאריכים ישירות על עמודה (כמו בצורה א') יוצרת מצב שנקרא Non-Sargable. המשמעות היא שבסיס הנתונים אינו יכול להשתמש באינדקסים קיימים על עמודות התאריכים, והוא נאלץ לבצע פונקציה על כל שורה ושורה בטבלה (Full Table Scan). בצורה ב', המרה פשוטה ל-DATE (ביטול שעות) מאפשרת השוואה ישירה שיכולה להסתמך טוב יותר על ארכיטקטורת אינדקסים, מה שמשפר את זמן התגובה.
+
+
+## 📊 תשאול מורכב נוסף (Single Queries)
+בחלק זה יצרנו שאילתות מורכבות נוספות המשלבות מספר טבלאות, פונקציות קיבוץ (Aggregation) וסינונים מתקדמים, כדי להפיק דוחות תפעוליים שוטפים עבור הנהלת המלון.
+
+---
+
+### 📌 שאילתה 5: סיכום תקלות חודשי
+**תיאור השאילתה:** שאילתה זו מפיקה דוח סטטיסטי המציג את כמות התקלות שנפתחו בכל חודש ושנה. הנתונים מקובצים לפי חודש ושנה וממוינים מהתאריך החדש ביותר לישן ביותר. המידע חיוני לזיהוי מגמות או חודשים עם עומס חריג (למשל תקלות מיזוג בקיץ).
+
+**קוד השאילתה:**
+```sql
+SELECT First_Name, Last_Name, Expertise
+FROM STAFF S
+WHERE NOT EXISTS (
+    SELECT 1 FROM MAINTENANCE_TICKETS T 
+    WHERE T.Staff_ID = S.Staff_ID 
+    AND T.Opened_At > CURRENT_DATE - INTERVAL '1 month'
+);
+```
+
+**צילומי מסך:**
+![הכנס תמונה כאן](./Images/your_image_name.png)
+
+
+
+### 📌 שאילתה 6: איתור צוות לא פעיל (שימוש ב-NOT EXISTS)
+**תיאור השאילתה:** השאילתה מאתרת טכנאים מצוות התחזוקה (שם, משפחה ומומחיות) שלא פתחו או טיפלו באף תקלה בחודש האחרון. זהו כלי ניהולי חשוב שנועד לוודא חלוקת עומסים נכונה ואיתור עובדים שאינם מנצלים את זמנם כראוי או שנמצאים בחופשה ארוכה.
+
+**קוד השאילתה:**
+```sql
+SELECT First_Name, Last_Name, Expertise
+FROM STAFF S
+WHERE NOT EXISTS (
+    SELECT 1 
+    FROM MAINTENANCE_TICKETS T 
+    WHERE T.Staff_ID = S.Staff_ID 
+    AND T.Opened_At > CURRENT_DATE - INTERVAL '1 month'
+);
+```
+
+**צילומי מסך:**
+![הכנס תמונה כאן](./Images/your_image_name.png)
+
+
+
+### 📌 שאילתה 7: נכסים בעייתיים - מרובי כישלונות בבדיקה
+**תיאור השאילתה:** שאילתה זו משלבת 3 טבלאות (Assets, Staff, Inspection_Log) כדי לאתר ציוד ספציפי שנכשל ביותר מ-3 בדיקות תחזוקה שוטפות. הדו"ח מציג את שם הנכס, היצרן, ומספר הכישלונות, וממוין מהנכס הבעייתי ביותר מטה, במטרה לשקול החלפת ציוד פגום במקום להמשיך לתקן אותו.
+
+**קוד השאילתה:**
+```sql
+SELECT A.Asset_Name, A.Manufacturer, S.First_Name, S.Last_Name, COUNT(I.Log_Id) AS Failed_Inspections
+FROM ASSETS A
+JOIN INSPECTION_LOG I ON A.Asset_ID = I.Asset_ID
+JOIN STAFF S ON I.Staff_ID = S.Staff_ID
+WHERE I.Inspection_Result = 'Fail'
+GROUP BY A.Asset_ID, A.Asset_Name, A.Manufacturer, S.First_Name, S.Last_Name
+HAVING COUNT(I.Log_Id) > 0
+ORDER BY Failed_Inspections DESC;
+```
+
+**צילומי מסך:**
+![הכנס תמונה כאן](./Images/your_image_name.png)
+
+
+
+
+### 📌 שאילתה 8: דוח תקלות דחופות עם מיקום מדויק
+**תיאור השאילתה:** השאילתה מפיקה דוח חירום של כל התקלות שנמצאות כעת בסטטוס 'פתוח' (Open) ורמת הדחיפות שלהן היא 'גבוהה' (High) או 'קריטית' (Urgent). הדו"ח מצליב נתונים מול טבלת המיקומים כדי לספק לטכנאי את הקומה והאזור המדויקים, וממוין לפי קומה כדי לייעל את מסלול ההליכה של הטכנאי.
+
+**קוד השאילתה:**
+```sql
+SELECT T.Issue_Description, T.Urgency_Level, L.Area_Name, L.Floor_Number
+FROM MAINTENANCE_TICKETS T
+JOIN ASSETS A ON T.Asset_ID = A.Asset_ID
+JOIN LOCATIONS L ON A.Location_ID = L.Location_ID
+WHERE T.Ticket_Status = 'Open' AND T.Urgency_Level IN ('High', 'Urgent')
+ORDER BY L.Floor_Number ASC;
+```
+
+**צילומי מסך:**
+![הכנס תמונה כאן](./Images/your_image_name.png)
+## 🛠️ עדכון נתונים (UPDATE Queries)
+בפרק זה ביצענו פעולות תחזוקה אקטיביות על הנתונים במערכת כדי לשמור על עדכניות המידע, לנהל סיכונים ולשפר את הטיפול בתקלות המלון.
+
+---
+
+### 🔄 עדכון 1: העלאת דחיפות לתקלות ישנות שלא טופלו
+**תיאור השאילתה:** השאילתה עוברת על טבלת התקלות (Maintenance_Tickets) ומאתרת תקלות שעדיין פתוחות (`Ticket_Status = 'Open'`) ועברו יותר מ-14 ימים מרגע פתיחתן. השאילתה מעדכנת את רמת הדחיפות שלהן ל-'Urgent' (קריטי) כדי להקפיץ אותן לראש סדר העדיפויות של צוות התחזוקה ולמנוע פגיעה בחוויית האורחים.
+
+**קוד השאילתה:**
+```sql
+UPDATE MAINTENANCE_TICKETS
+SET Urgency_Level = 'Urgent'
+WHERE Ticket_Status = 'Open' AND Opened_At < CURRENT_DATE - INTERVAL '14 days';
+```
+**תיעוד הביצוע:**
+* **לפני העדכון:**
+ ![לפני העדכון](Step_B/images/U1before.jpg)
+* **הרצת הפקודה:** ![הרצת הפקודה](./Images/Execute_Update.png)
+* **אחרי העדכון:** ![אחרי העדכון](./Images/After_Update.png)
+
+* 
+### 🔄 עדכון 2: סימון נכסים שדורשים תיקון בעקבות כישלון בבדיקה
+**תיאור השאילתה:** השאילתה בודקת את יומן הבדיקות (Inspection_Log). אם נכס מסוים נכשל בבדיקה האחרונה שלו (Fail), השאילתה ניגשת לטבלת הנכסים (Assets) ומשרשרת לשם הנכס את ההערה " - NEEDS REPAIR". פעולה זו מספקת חיווי ויזואלי מיידי במסכי המערכת לגבי מצב הציוד.
+**קוד השאילתה:**
+```sql
+UPDATE ASSETS
+SET Asset_Name = Asset_Name || ' - NEEDS REPAIR'
+WHERE Asset_ID IN (
+    SELECT Asset_ID 
+    FROM INSPECTION_LOG 
+    WHERE Inspection_Result = 'Fail'
+);
+```
+**תיעוד הביצוע:**
+* **לפני העדכון:** ![לפני העדכון](./Images/Before_Update.png)
+* **הרצת הפקודה:** ![הרצת הפקודה](./Images/Execute_Update.png)
+* **אחרי העדכון:** ![אחרי העדכון](./Images/After_Update.png)
+
+  
+### 🔄 עדכון 3: עדכון תאריך סגירה אוטומטי לתקלות
+**תיאור השאילתה:** במקרים שבהם טכנאי העביר סטטוס של תקלה ל-'Closed' (סגור) אך שכח להזין את תאריך הסגירה (Resolved_At IS NULL), השאילתה מזהה את חוסר העקביות הזה ומעדכנת אוטומטית את תאריך הסגירה לתאריך של היום (CURRENT_DATE). זה מבטיח שלמות נתונים לטובת חישובי זמני טיפול (SLA)..
+**קוד השאילתה:**
+```sql
+UPDATE MAINTENANCE_TICKETS
+SET Resolved_At = CURRENT_DATE
+WHERE Ticket_Status = 'Closed' AND Resolved_At IS NULL;
+```
+**תיעוד הביצוע:**
+* **לפני העדכון:** ![לפני העדכון](./Images/Before_Update.png)
+* **הרצת הפקודה:** ![הרצת הפקודה](./Images/Execute_Update.png)
+* **אחרי העדכון:** ![אחרי העדכון](./Images/After_Update.png)
+
+‫Gemini אמר
+מעולה. הגענו לחלק שבו אנחנו משנים את הנתונים בפועל (DML).
+
+כדי שהבודק יראה שזה באמת עבד, הטריק כאן הוא לצלם 3 תמונות לכל שאילתה:
+
+לפני: מריצים שאילתת SELECT פשוטה שמראה את הנתונים לפני השינוי (ומצלמים).
+
+ההרצה: מצלמים את חלון הפקודה של ה-UPDATE/DELETE ואת ההודעה למטה שאומרת כמה שורות הושפעו (למשל: UPDATE 3 או DELETE 2).
+
+אחרי: מריצים שוב את אותה שאילתת SELECT מסעיף 1, ומצלמים כדי להראות שהנתונים אכן השתנו או נמחקו.
+
+התאמתי את השאילתות מהקובץ שלך בדיוק לתחביר של PostgreSQL כדי שירוצו לך בלי שגיאות (החלפתי פונקציות כמו DATE_SUB ו-CONCAT במקבילות שלהן ב-Postgres).
+
+הנה הבלוק המדויק להעתקה ל-README:
+
+Markdown
+## 🛠️ עדכון נתונים (UPDATE Queries)
+בפרק זה ביצענו פעולות תחזוקה אקטיביות על הנתונים במערכת כדי לשמור על עדכניות המידע, לנהל סיכונים ולשפר את הטיפול בתקלות המלון.
+
+---
+
+### 🔄 עדכון 1: העלאת דחיפות לתקלות ישנות שלא טופלו
+**תיאור השאילתה:** השאילתה עוברת על טבלת התקלות (Maintenance_Tickets) ומאתרת תקלות שעדיין פתוחות (`Ticket_Status = 'Open'`) ועברו יותר מ-14 ימים מרגע פתיחתן. השאילתה מעדכנת את רמת הדחיפות שלהן ל-'Urgent' (קריטי) כדי להקפיץ אותן לראש סדר העדיפויות של צוות התחזוקה ולמנוע פגיעה בחוויית האורחים.
+
+**קוד השאילתה:**
+```sql
+UPDATE MAINTENANCE_TICKETS
+SET Urgency_Level = 'Urgent'
+WHERE Ticket_Status = 'Open' 
+  AND Opened_At < CURRENT_DATE - INTERVAL '14 days';
+תיעוד הביצוע:
+
+לפני העדכון:
+
+הרצת הפקודה:
+
+אחרי העדכון:
+
+🔄 עדכון 2: סימון נכסים שדורשים תיקון בעקבות כישלון בבדיקה
+תיאור השאילתה: השאילתה בודקת את יומן הבדיקות (Inspection_Log). אם נכס מסוים נכשל בבדיקה האחרונה שלו (Fail), השאילתה ניגשת לטבלת הנכסים (Assets) ומשרשרת לשם הנכס את ההערה " - NEEDS REPAIR". פעולה זו מספקת חיווי ויזואלי מיידי במסכי המערכת לגבי מצב הציוד.
+
+קוד השאילתה:
+
+SQL
+UPDATE ASSETS
+SET Asset_Name = Asset_Name || ' - NEEDS REPAIR'
+WHERE Asset_ID IN (
+    SELECT Asset_ID 
+    FROM INSPECTION_LOG 
+    WHERE Inspection_Result = 'Fail'
+);
+תיעוד הביצוע:
+
+לפני העדכון:
+
+הרצת הפקודה:
+
+אחרי העדכון:
+
+🔄 עדכון 3: עדכון תאריך סגירה אוטומטי לתקלות
+תיאור השאילתה: במקרים שבהם טכנאי העביר סטטוס של תקלה ל-'Closed' (סגור) אך שכח להזין את תאריך הסגירה (Resolved_At IS NULL), השאילתה מזהה את חוסר העקביות הזה ומעדכנת אוטומטית את תאריך הסגירה לתאריך של היום (CURRENT_DATE). זה מבטיח שלמות נתונים לטובת חישובי זמני טיפול (SLA).
+
+קוד השאילתה:
+
+SQL
+UPDATE MAINTENANCE_TICKETS
+SET Resolved_At = CURRENT_DATE
+WHERE Ticket_Status = 'Closed' AND Resolved_At IS NULL;
+תיעוד הביצוע:
+
+לפני העדכון:
+
+הרצת הפקודה:
+
+אחרי העדכון:
+
+🗑️ מחיקת נתונים (DELETE Queries)
+בחלק זה ביצענו פעולות של ניקוי נתונים ישנים או יתומים במטרה לחסוך בשטח אחסון, לייעל את חיפושי המערכת ולשמור על מסד נתונים רזה ומדויק.
+
+❌ מחיקה 1: ארכיון יומני בדיקה ישנים ותקינים
+תיאור השאילתה: השאילתה מוחקת רשומות מיומן הבדיקות (Inspection_Log) שעונות על שני תנאים: הבדיקה עברה בהצלחה (Pass) והיא התבצעה לפני שנת 2024. אין צורך לשמור היסטוריית תקינות ישנה במערכת הפעילה, ופעולה זו מקטינה את גודל הטבלה ומשפרת ביצועים.
+**קוד השאילתה:**
+```sql
+DELETE FROM INSPECTION_LOG
+WHERE Inspection_Result = 'Pass' AND Inspection_Date < '2024-01-01';
+```
+**תיעוד הביצוע:**
+* **לפני המחיקה:** ![לפני העדכון](./Images/Before_Update.png)
+* **הרצת הפקודה:** ![הרצת הפקודה](./Images/Execute_Update.png)
+* **אחרי המחיקה:** ![אחרי העדכון](./Images/After_Update.png)
+
+ 
+❌ מחיקה 2: הסרת מיקומים (Locations) ללא נכסים
+תיאור השאילתה: השאילתה מוחקת מטבלת המיקומים (Locations) אזורים במלון שאין בהם אף נכס שדורש תחזוקה. הבדיקה מתבצעת באמצעות תת-שאילתה שמוודאת שה-Location_ID אינו מופיע כלל בטבלת הנכסים (Assets). זה מנקה אזורים מבוטלים או שגיאות הקלדה שנעשו בעת הגדרת המלון..
+**קוד השאילתה:**
+```sql
+DELETE FROM LOCATIONS
+WHERE Location_ID NOT IN (
+    SELECT DISTINCT Location_ID 
+    FROM ASSETS 
+    WHERE Location_ID IS NOT NULL
+);
+```
+**תיעוד הביצוע:**
+* **לפני המחיקה:** ![לפני העדכון](./Images/Before_Update.png)
+* **הרצת הפקודה:** ![הרצת הפקודה](./Images/Execute_Update.png)
+* **אחרי המחיקה:** ![אחרי העדכון](./Images/After_Update.png)
+
+  
+❌ מחיקה 3: הסרת ספקים (Vendors) לא פעילים
+תיאור השאילתה: בדומה למחיקת המיקומים, שאילתה זו עוברת על טבלת הספקים ומוחקת ספקים שאינם מקושרים לאף נכס קיים במלון. הסרת ספקים שלא מספקים שירות למלון שומרת על רשימת קשר ממוקדת ויעילה עבור צוות הרכש והתחזוקה..
+**קוד השאילתה:**
+```sql
+DELETE FROM VENDORS
+WHERE Vendor_ID NOT IN (
+    SELECT DISTINCT Vendor_ID 
+    FROM ASSETS 
+    WHERE Vendor_ID IS NOT NULL
+);
+```
+**תיעוד הביצוע:**
+* **לפני המחיקה:** ![לפני העדכון](./Images/Before_Update.png)
+* **הרצת הפקודה:** ![הרצת הפקודה](./Images/Execute_Update.png)
+* **אחרי המחיקה:** ![אחרי העדכון](./Images/After_Update.png)
+
+
+## 🛡️ אילוצים (Constraints)
+
+בחלק זה הוספנו הגנות ברמת בסיס הנתונים כדי למנוע הזנת נתונים לא הגיוניים או שגויים, השומרים על שלמות ואמינות המידע (Data Integrity).
+
+### אילוץ 1: בדיקת תאריכים הגיוניים (תאריך סיום לעומת פתיחה)
+**תיאור השינוי:** הוספנו אילוץ לטבלת `MAINTENANCE_TICKETS` שמוודא שתאריך סגירת התקלה (`Resolved_At`) לא יכול להיות מוקדם יותר מתאריך פתיחת התקלה (`Opened_At`). 
+
+**קוד יצירת האילוץ (`ALTER TABLE`):**
+```sql
+ALTER TABLE MAINTENANCE_TICKETS
+ADD CONSTRAINT chk_ticket_dates 
+CHECK (Resolved_At IS NULL OR Resolved_At >= Opened_At);
+```
+
+**ניסיון הפרת האילוץ (הזנת תאריך סגירה שקודם לפתיחה):**
+
+```sql
+INSERT INTO MAINTENANCE_TICKETS (Ticket_ID, Asset_Id, Staff_Id, Issue_Description, Opened_At, Resolved_At, Urgency_Level, Ticket_Status) 
+VALUES (9001, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STAFF), 'Time Travel Error', '2026-05-10', '2026-05-01', 'Low', 'Closed');
+```
+
+צילום שגיאת ההרצה:
+
+
+### אילוץ 2: בדיקת טווח קומות הגיוני במלון
+**תיאור השינוי:** הוספנו אילוץ לטבלת LOCATIONS שמוודא שמספר הקומה (Floor_Number) חייב להיות בטווח ההגיוני של המבנה (בין קומה מינוס 2 לחניון, ועד קומה 50).
+**קוד יצירת האילוץ (`ALTER TABLE`):**
+```sql
+ALTER TABLE LOCATIONS
+ADD CONSTRAINT chk_floor_range 
+CHECK (Floor_Number >= -2 AND Floor_Number <= 50);
+```
+
+**ניסיון הפרת האילוץ (הזנת קומה 100 שאינה קיימת):**
+
+```sql
+INSERT INTO LOCATIONS (Location_ID, Floor_Number, Area_Name, Access_Level) 
+VALUES (9002, 100, 'Rooftop Antenna', 'Staff');
+```
+
+צילום שגיאת ההרצה:
+
+
+### אילוץ 3: הגבלת ערכי הסטטוס של תקלה
+**תיאור השינוי:** הוספנו אילוץ לטבלת MAINTENANCE_TICKETS המגביל את עמודת מצב התקלה (Ticket_Status) לערכים מוגדרים מראש בלבד, כדי למנוע טעויות הקלדה.
+**קוד יצירת האילוץ (`ALTER TABLE`):**
+```sql
+ALTER TABLE MAINTENANCE_TICKETS
+ADD CONSTRAINT chk_status_values 
+CHECK (Ticket_Status IN ('Open', 'In Progress', 'Closed', 'Cancelled'));
+```
+
+**ניסיון הפרת האילוץ (הזנהזנת סטטוס מומצא בשם 'Magic'):**
+
+```sql
+INSERT INTO MAINTENANCE_TICKETS (Ticket_ID, Asset_Id, Staff_Id, Issue_Description, Opened_At, Resolved_At, Urgency_Level, Ticket_Status) 
+VALUES (9003, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STAFF), 'Test Status', CURRENT_DATE, NULL, 'Low', 'Magic');
+```
+
+צילום שגיאת ההרצה:
+
+
+### אילוץ 4: ההגבלת רמות הדחיפות (Urgency)
+**תיאור השינוי:** בדומה לאילוץ הסטטוס, הוספנו אילוץ לטבלת MAINTENANCE_TICKETS המגביל את עמודת רמת הדחיפות (Urgency_Level) לסולם ערכים קבוע ומורשה.
+**קוד יצירת האילוץ (ALTER TABLE):**
+```sql
+ALTER TABLE MAINTENANCE_TICKETS
+ADD CONSTRAINT chk_urgency_level 
+CHECK (Urgency_Level IN ('Low', 'Medium', 'High', 'Urgent'));
+```
+
+**ניסיון הפרת האילוץ (הזנת רמת דחיפות שאינה ברשימה - 'Super Fast'):**
+
+```sql
+INSERT INTO MAINTENANCE_TICKETS (Ticket_ID, Asset_Id, Staff_Id, Issue_Description, Opened_At, Resolved_At, Urgency_Level, Ticket_Status) 
+VALUES (9004, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STAFF), 'Test Urgency', CURRENT_DATE, NULL, 'Super Fast', 'Open');
+```
+
+צילום שגיאת ההרצה:
+
+
+## 💾 ניהול עסקאות (Transactions)
+
+בשלב זה הדגמנו את היכולת של בסיס הנתונים לנהל עסקאות בצורה בטוחה, המאפשרת ביטול פעולות שבוצעו בטעות או שמירה סופית שלהן.
+
+### חלק 1: ביטול פעולה בעזרת ROLLBACK
+**תיאור:** ביצענו מחיקה של כל הרשומות ביומן הבדיקות (`INSPECTION_LOG`) בתוך עסקה פעילה. לאחר מכן, השתמשנו בפקודת `ROLLBACK` כדי לבטל את המחיקה ולהחזיר את המצב לקדמותו, מה שמוכיח שהנתונים לא אבדו למרות פקודת המחיקה.
+
+* **מצב 1: הטבלה לפני המחיקה (קיימים נתונים):**
+![לפני](Step_B/images/Rollback_1_Before.png)
+
+* **מצב 2: בתוך העסקה (הנתונים נמחקו זמנית - טבלה ריקה):**
+![נמחק](Step_B/images/Rollback_2_Deleted.png)
+
+* **מצב 3: לאחר ROLLBACK (הנתונים שוחזרו במלואם):**
+![שוחזר](Step_B/images/Rollback_3_Recovered.png)
+
+---
+
+### חלק 2: שמירת שינויים בעזרת COMMIT
+**תיאור:** ביצענו עדכון של פרטי איש קשר אצל ספק מסוים וסגרנו את העסקה בעזרת `COMMIT`. לאחר השמירה, ניסינו לבצע `ROLLBACK` כדי להראות שברגע שהעסקה נחתמה ובוצע אישור סופי, השינוי הופך לקבוע בבסיס הנתונים ולא ניתן לבטלו עוד.
+
+* **ביצוע העדכון והשמירה הסופית (COMMIT):**
+![ביצוע COMMIT](Step_B/images/Commit_1_Run.png)
+
+* **בדיקה לאחר ניסיון ביטול (השינוי נשאר קבוע למרות ה-ROLLBACK):**
+![תוצאה סופית](Step_B/images/Commit_2_Final.png)
