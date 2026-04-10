@@ -1,4 +1,4 @@
-<img width="850" height="755" alt="image" src="https://github.com/user-attachments/assets/19ec06f2-9680-42dd-af26-2a5022ba06cd" /># DBProject_3020_9397
+
 ## DPBPROJECT Hotel - Infrastructure & Maintenance Database System
 
 ---
@@ -515,10 +515,15 @@ WHERE Ticket_Status = 'Closed' AND Resolved_At IS NULL;
 DELETE FROM INSPECTION_LOG
 WHERE Inspection_Result = 'Pass' AND Inspection_Date < '2024-01-01';
 ```
-**תיעוד הביצוע:**
-* **לפני המחיקה:** ![לפני העדכון](./Images/Before_Update.png)
-* **הרצת הפקודה:** ![הרצת הפקודה](./Images/Execute_Update.png)
-* **אחרי המחיקה:** ![אחרי העדכון](./Images/After_Update.png)
+**תיעוד הביצוע**
+**לפני המחיקה:**
+![הכנס תמונה כאן](Step_B/images/D1before.jpg/.)
+
+**הרצת הפקודה:**
+![הכנס תמונה כאן](Step_B/images/D1.jpg/.)
+
+* **אחרי המחיקה:**
+![הכנס תמונה כאן](Step_B/images/D1after.jpg/.)
 
  
 ❌ מחיקה 2: הסרת מיקומים (Locations) ללא נכסים
@@ -532,11 +537,15 @@ WHERE Location_ID NOT IN (
     WHERE Location_ID IS NOT NULL
 );
 ```
+**תיעוד הביצוע**
+**לפני המחיקה:**
+![הכנס תמונה כאן](Step_B/images/D2before.jpg/.)
 
-**תיעוד הביצוע:**
-* **לפני המחיקה:** ![לפני העדכון](./Images/Before_Update.png)
-* **הרצת הפקודה:** ![הרצת הפקודה](./Images/Execute_Update.png)
-* **אחרי המחיקה:** ![אחרי העדכון](./Images/After_Update.png)
+**הרצת הפקודה:**
+![הכנס תמונה כאן](Step_B/images/D2.jpg/.)
+
+* **אחרי המחיקה:**
+![הכנס תמונה כאן](Step_B/images/D2after.jpg/.)
 
   
 ❌ מחיקה 3: הסרת ספקים (Vendors) לא פעילים
@@ -550,11 +559,15 @@ WHERE Vendor_ID NOT IN (
     WHERE Vendor_ID IS NOT NULL
 );
 ```
-**תיעוד הביצוע:**
-* **לפני המחיקה:** ![לפני העדכון](./Images/Before_Update.png)
-* **הרצת הפקודה:** ![הרצת הפקודה](./Images/Execute_Update.png)
-* **אחרי המחיקה:** ![אחרי העדכון](./Images/After_Update.png)
+**תיעוד הביצוע**
+**לפני המחיקה:**
+![הכנס תמונה כאן](Step_B/images/D3before.jpg/.)
 
+**הרצת הפקודה:**
+![הכנס תמונה כאן](Step_B/images/D3.jpg/.)
+
+* **אחרי המחיקה:**
+![הכנס תמונה כאן](Step_B/images/D3after.jpg/.)
 
 ## 🛡️ אילוצים (Constraints)
 
@@ -577,7 +590,9 @@ INSERT INTO MAINTENANCE_TICKETS (Ticket_ID, Asset_Id, Staff_Id, Issue_Descriptio
 VALUES (9001, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STAFF), 'Time Travel Error', '2026-05-10', '2026-05-01', 'Low', 'Closed');
 ```
 
-צילום שגיאת ההרצה:
+**צילום שגיאת הריצה:**
+![הכנס תמונה כאן](Step_B/images/ERROR1.jpg/.)
+
 
 
 ### אילוץ 2: בדיקת טווח קומות הגיוני במלון
@@ -596,7 +611,9 @@ INSERT INTO LOCATIONS (Location_ID, Floor_Number, Area_Name, Access_Level)
 VALUES (9002, 100, 'Rooftop Antenna', 'Staff');
 ```
 
-צילום שגיאת ההרצה:
+
+**צילום שגיאת הריצה:**
+![הכנס תמונה כאן](Step_B/images/ERROR2.jpg/.)
 
 
 ### אילוץ 3: הגבלת ערכי הסטטוס של תקלה
@@ -615,7 +632,9 @@ INSERT INTO MAINTENANCE_TICKETS (Ticket_ID, Asset_Id, Staff_Id, Issue_Descriptio
 VALUES (9003, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STAFF), 'Test Status', CURRENT_DATE, NULL, 'Low', 'Magic');
 ```
 
-צילום שגיאת ההרצה:
+
+**צילום שגיאת הריצה:**
+![הכנס תמונה כאן](Step_B/images/ERROR3.jpg/.)
 
 
 ### אילוץ 4: ההגבלת רמות הדחיפות (Urgency)
@@ -634,7 +653,9 @@ INSERT INTO MAINTENANCE_TICKETS (Ticket_ID, Asset_Id, Staff_Id, Issue_Descriptio
 VALUES (9004, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STAFF), 'Test Urgency', CURRENT_DATE, NULL, 'Super Fast', 'Open');
 ```
 
-צילום שגיאת ההרצה:
+
+**צילום שגיאת הריצה:**
+![הכנס תמונה כאן](Step_B/images/ERROR4.jpg/.)
 
 
 ## 💾 ניהול עסקאות (Transactions)
@@ -645,13 +666,13 @@ VALUES (9004, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STA
 **תיאור:** ביצענו מחיקה של כל הרשומות ביומן הבדיקות (`INSPECTION_LOG`) בתוך עסקה פעילה. לאחר מכן, השתמשנו בפקודת `ROLLBACK` כדי לבטל את המחיקה ולהחזיר את המצב לקדמותו, מה שמוכיח שהנתונים לא אבדו למרות פקודת המחיקה.
 
 * **מצב 1: הטבלה לפני המחיקה (קיימים נתונים):**
-![לפני](Step_B/images/Rollback_1_Before.png)
+![לפני](Step_B/images/R1a.jpg)
 
 * **מצב 2: בתוך העסקה (הנתונים נמחקו זמנית - טבלה ריקה):**
-![נמחק](Step_B/images/Rollback_2_Deleted.png)
+![נמחק](Step_B/images/R1b.jpg)
 
 * **מצב 3: לאחר ROLLBACK (הנתונים שוחזרו במלואם):**
-![שוחזר](Step_B/images/Rollback_3_Recovered.png)
+![שוחזר](Step_B/images/R1c.jpg)
 
 ---
 
@@ -659,7 +680,7 @@ VALUES (9004, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STA
 **תיאור:** ביצענו עדכון של פרטי איש קשר אצל ספק מסוים וסגרנו את העסקה בעזרת `COMMIT`. לאחר השמירה, ניסינו לבצע `ROLLBACK` כדי להראות שברגע שהעסקה נחתמה ובוצע אישור סופי, השינוי הופך לקבוע בבסיס הנתונים ולא ניתן לבטלו עוד.
 
 * **ביצוע העדכון והשמירה הסופית (COMMIT):**
-![ביצוע COMMIT](Step_B/images/Commit_1_Run.png)
+![ביצוע COMMIT](Step_B/images/commit.jpg)
 
 * **בדיקה לאחר ניסיון ביטול (השינוי נשאר קבוע למרות ה-ROLLBACK):**
-![תוצאה סופית](Step_B/images/Commit_2_Final.png)
+![תוצאה סופית](Step_B/images/commit2.jpg)
