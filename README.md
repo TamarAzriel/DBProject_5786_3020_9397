@@ -680,7 +680,7 @@ VALUES (9004, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STA
 **תיאור:** ביצענו עדכון של פרטי איש קשר אצל ספק מסוים וסגרנו את העסקה בעזרת `COMMIT`. לאחר השמירה, ניסינו לבצע `ROLLBACK` כדי להראות שברגע שהעסקה נחתמה ובוצע אישור סופי, השינוי הופך לקבוע בבסיס הנתונים ולא ניתן לבטלו עוד.
 
 * **ביצוע העדכון והשמירה הסופית (COMMIT):**
-![ביצוע COMMIT](Step_B/images/commit.jpg)
+![ביצוע COMMIT](Step_B/images/commit1.jpg)
 
 * **בדיקה לאחר ניסיון ביטול (השינוי נשאר קבוע למרות ה-ROLLBACK):**
 ![תוצאה סופית](Step_B/images/commit2.jpg)
