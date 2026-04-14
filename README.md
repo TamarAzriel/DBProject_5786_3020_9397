@@ -5,7 +5,7 @@
 
 # 📘 Project Report
 
-This project is a comprehensive **Infrastructure and Maintenance Management System** for the luxury "ASTREA" Hotel. It was developed as a core component of the Database Systems course to manage high-end technical operations.
+This project is a comprehensive **Infrastructure and Maintenance Management System** for Hotel. It was developed as a core component of the Database Systems course to manage high-end technical operations.
 
 # 🧑‍💻 Authors
 * **Tamar Azriel**
