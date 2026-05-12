@@ -686,65 +686,114 @@ VALUES (9004, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STA
 ![תוצאה סופית](Step_B/images/commit2.jpg)
 
 
-# שלב ג': אינטגרציה ומבטים
+## שלב ג': אינטגרציה ומבטים
 בשלב זה ביצענו הינדוס לאחור לבסיס הנתונים של אגף משאבי אנוש (HR), שילבנו אותו עם מערכת התחזוקה הקיימת שלנו, ופיתחנו מבטים (Views) ייעודיים לניתוח הנתונים המשולבים.
 
 ---
 
 ## 1. הינדוס לאחור - אגף משאבי אנוש
-קיבלנו את הסכימה הלוגית (DSD) של אגף משאבי אנוש ושחזרנו את תרשים הישויות-קשרים (ERD) המקורי שלו.
+שחזרנו את תרשים הישויות-קשרים (ERD) מהסכימה הלוגית שקיבלנו.
 
 ### אלגוריתם הינדוס לאחור
-* **זיהוי ישויות**: כל טבלה ב-DSD שסופק מופתה לישות ב-ERD החדש.
-* **זיהוי תכונות**: העמודות מהטבלאות הומרו לתכונות, כאשר מפתחות ראשיים סומנו בקו תחתי.
-* **זיהוי קשרים**: אילוצי מפתח זר (כמו `departmentid` בטבלת `employees`) שימשו להגדרת הקשרים והיהלומים בתרשים.
-* **קביעת קרדינליות**: קבענו את עוצמת הקשר (למשל 1:N) על סמך שלמות היחסים והלוגיקה של מסד הנתונים.
+* **זיהוי ישויות**: מיפוי טבלאות לישויות.
+* **זיהוי תכונות**: המרת עמודות לתכונות עם זיהוי מפתחות.
+* **זיהוי קשרים**: שימוש במפתחות זרים להגדרת קשרים.
+* **קביעת קרדינליות**: קביעת יחסי 1:N ו-N:M.
 
 **תיעוד חזותי:**
-* **DSD של האגף החדש**:
-![DSD אגף חדש](Step_C/erdplus%20(3).png)
-* **ERD של האגף החדש**:
-![ERD אגף חדש](Step_C/erdplus%20(4).png)
+* **DSD של האגף החדש**: ![DSD אגף חדש](Step_C/erdplus%20(3).png)
+* **ERD של האגף החדש**: ![ERD אגף חדש](Step_C/erdplus%20(4).png)
 
 ---
 
 ## 2. אינטגרציה
-שילבנו את בסיס הנתונים המקורי של מחלקת תחזוקה ותשתיות עם בסיס הנתונים החדש של אגף משאבי אנוש למערכת אחת מאוחדת.
-
-### החלטות אינטגרציה וביצוע
-* **חיבור המערכות**: החלטנו לקשר את טבלת ה-`STAFF` ממערכת התחזוקה לטבלת ה-`employees` ממערכת ה-HR.
-* **לוגיקה**: הוספנו עמודת `employeeid` לטבלת ה-`STAFF` כדי לשקף שכל איש צוות טכני הוא גם עובד רשום במלון.
-* **שינויים מבניים**: השתמשנו בפקודות `ALTER TABLE` לעדכון הסכימה הקיימת ובפקודות `UPDATE` כדי לקשר בין אנשי הצוות הקיימים לרשומות ה-HR שלהם.
+ביצענו אינטגרציה בין מערכת התחזוקה למערכת ה-HR. הוספנו עמודת `employeeid` לטבלת ה-`STAFF` כדי לקשר בין אנשי הצוות הטכני לזהותם כעובדי מלון.
 
 **תיעוד חזותי:**
-* **ERD משולב**:
-![ERD משולב](Step_C/erdplus%20(5).png)
-* **DSD לאחר אינטגרציה**:
-![DSD לאחר אינטגרציה](Step_C/erdplus%20(6).png)
+* **ERD משולב**: ![ERD משולב](Step_C/erdplus%20(5).png)
+* **DSD לאחר אינטגרציה**: ![DSD לאחר אינטגרציה](Step_C/erdplus%20(6).png)
 
 ---
 
 ## 3. מבטים (Views) ושאילתות
-פיתחנו שלושה מבטים כדי לספק גישה מקיפה לנתונים מנקודת המבט של כל אגף מקורי ומבט משולב.
 
 ### מבט 1: נקודת מבט תשתיות (`asset_full_details`)
-* **תיאור**: מאחד מידע על נכסים, מיקום פיזי ופרטי חוזה של ספקים.
-* **שאילתה 1**: מציגה את כל הנכסים שמוגדרים כרגע כ"פעילים" (Active).
-* **שאילתה 2**: מזהה נכסים שחוזי הספקים שלהם פגים במהלך השנה הקרובה.
+**תיאור:** מבט המרכז את פרטי הנכסים, מיקומם המדויק ופרטי הספק האחראי עליהם.
+
+**שליפת נתונים (`SELECT *`):**
+| Asset_Id | Asset_Name | Asset_Category | Status | Area_Name | Floor | Company_Name |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 101 | AC Unit | HVAC | Active | Lobby | 0 | CoolAir Ltd |
+| 102 | Elevator A | Transport | Active | North Wing | 1-10 | LiftMaster |
+| 103 | Generator | Power | Active | Basement | -1 | VoltEdge |
+| 104 | Fridge Ind. | Kitchen | Maintenance | Main Kitchen | 0 | ChillTech |
+| 105 | Boiler 1 | Plumbing | Active | Roof | 12 | FlowSystems |
+| 106 | CCTV Cam 4 | Security | Active | Parking | -1 | SecureEye |
+| 107 | Fire Pump | Safety | Active | Pump Room | -1 | FireGuard |
+| 108 | Washing Mach | Laundry | Active | Laundry Room | 0 | WashPro |
+| 109 | Router R1 | IT | Active | Server Room | 3 | NetConnect |
+| 110 | Pool Filter | Leisure | Inactive | Pool Area | 0 | AquaClear |
+
+**שאילתות על המבט:**
+1. **כל הנכסים הפעילים:**
+   * **קוד:** `SELECT * FROM asset_full_details WHERE Status = 'Active';`
+   * **פלט:** רשימת כל הנכסים למעט Fridge (בתיקון) ו-Pool Filter (לא פעיל).
+2. **חוזים שפגים בשנה הקרובה:**
+   * **קוד:** `SELECT Asset_Name, Company_Name, Contract_Expiration FROM asset_full_details WHERE Contract_Expiration < CURRENT_DATE + INTERVAL '1 year';`
+   * **פלט:** הצגת הנכסים שהספקים שלהם דורשים חידוש חוזה בקרוב.
+
+---
 
 ### מבט 2: נקודת מבט משאבי אנוש (`employee_full_details`)
-* **תיאור**: מספק פרופיל מלא של עובדים, כולל שמות מחלקות ומידע על שכר.
-* **שאילתה 1**: מונה את כל העובדים עם סטטוס העסקה "פעיל".
-* **שאילתה 2**: מסננת עובדים עם שכר בסיס הגבוה מ-5000.
+**תיאור:** ריכוז נתוני עובדים הכולל מחלקה, תפקיד ושכר בסיס.
 
-### מבט 3: נקודת מבט משולבת (`staff_employee_details`)
-* **תיאור**: מקשר באופן ספציפי בין המומחיות הטכנית ממערכת התחזוקה לבין רשומות הזיהוי ממערכת ה-HR.
-* **שאילתה 1**: שולפת את כל אנשי הצוות הטכני שיש להם מזהה עובד HR מקושר.
-* **שאילתה 2**: מציגה שמות אנשי צוות ומומחיות, ממוינים לפי תחום המומחיות שלהם.
+**שליפת נתונים (`SELECT *`):**
+| employeeid | firstname | lastname | departmentname | roletitle | basesalary |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | David | Cohen | Maintenance | Senior Technician | 7500 |
+| 2 | Sarah | Levi | HR | HR Manager | 9000 |
+| 3 | Itamar | Israeli | Maintenance | Electrician | 6200 |
+| 4 | Maya | Brown | Reception | Clerk | 5200 |
+| 5 | Ariel | Dayan | Maintenance | Plumber | 5800 |
+| 6 | Noa | Katz | Finance | Accountant | 8500 |
+| 7 | Daniel | Roz | Kitchen | Head Chef | 11000 |
+| 8 | Adi | Gabay | Maintenance | Junior Technician | 4800 |
+| 9 | Yossi | Shalom | Housekeeping | Supervisor | 5500 |
+| 10 | Omer | Peretz | Security | Guard | 5100 |
+
+**שאילתות על המבט:**
+1. **עובדים פעילים:**
+   * **קוד:** `SELECT * FROM employee_full_details WHERE employmentstatus = 'Active';`
+   * **פלט:** רשימת כל עובדי המלון המועסקים כעת.
+2. **עובדים עם שכר מעל 5000:**
+   * **קוד:** `SELECT firstname, lastname, roletitle, basesalary FROM employee_full_details WHERE basesalary > 5000;`
+   * **פלט:** רשימת עובדים (למעט Adi Gabay שמרוויח 4800).
+
+---
+
+### מבט 3: מבט משולב (`staff_employee_details`)
+**תיאור:** קישור בין צוות התחזוקה (מומחיות) לבין זהותם כעובדים במערכת ה-HR.
+
+**שליפת נתונים (`SELECT *`):**
+| Staff_ID | First_Name | Last_Name | Expertise | employeeid |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | David | Cohen | HVAC | 1 |
+| 2 | Itamar | Israeli | Electricity | 3 |
+| 3 | Ariel | Dayan | Plumbing | 5 |
+| 4 | Adi | Gabay | General | 8 |
+| 5 | Efrat | Sando | IT | 11 |
+
+**שאילתות על המבט:**
+1. **טכנאים המקושרים למערכת ה-HR:**
+   * **קוד:** `SELECT * FROM staff_employee_details;`
+   * **פלט:** כל 5 אנשי הצוות המופיעים בטבלה לעיל.
+2. **טכנאים לפי מומחיות:**
+   * **קוד:** `SELECT First_Name, Last_Name, Expertise FROM staff_employee_details ORDER BY Expertise;`
+   * **פלט:** רשימה ממוינת (Electricity, General, HVAC, IT, Plumbing).
 
 ---
 
 ## 4. קבצי הפרויקט
-* **Integrate.sql**: סקריפטים של SQL ליצירת טבלאות HR ולוגיקת האינטגרציה.
-* **Views.sql**: סקריפטים של SQL ליצירת המבטים והרצת שאילתות אנליטיות.
-* **backup3**: קובץ הגיבוי המעודכן של בסיס הנתונים הכולל את המבנה והנתונים המשולבים.
+* **Integrate.sql**: פקודות ליצירת טבלאות ואינטגרציה.
+* **Views.sql**: פקודות ליצירת המבטים והשאילתות.
+* **backup3**: קובץ הגיבוי המעודכן.
