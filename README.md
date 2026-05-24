@@ -797,3 +797,359 @@ VALUES (9004, (SELECT MIN(Asset_Id) FROM ASSETS), (SELECT MIN(Staff_Id) FROM STA
 * **Integrate.sql**: פקודות ליצירת טבלאות ואינטגרציה.
 * **Views.sql**: פקודות ליצירת המבטים והשאילתות.
 * **backup3**: קובץ הגיבוי המעודכן.
+
+# שלב ד' - תכנות בסיס הנתונים (PL/pgSQL)
+## 📞 חלק א': פונקציות (Functions)
+### 1. פונקציית חישוב ימי תחזוקה לפי מיקום
+**שם הפונקציה:** calculate_location_maintenance_days
+**אלמנטים שמומשו בקוד:** Explicit Cursor, Record, Loop, IF-ELSE, Exception Handling.
+
+**תיאור מילולי:**
+הפונקציה מקבלת מזהה מיקום (Location_ID) ומחזירה את סך ימי העבודה המצטברים שהושקעו (או מושקעים כעת) בפניות תחזוקה באותו מיקום. הפונקציה מוגנת על ידי מנגנון חריגות המבצע בדיקה מקדימה בטבלת המיקומים, וזורק שגיאה מותאמת אישית (e_location_not_found) במידה והמיקום לא קיים במערכת. היא עושה שימוש ב-Explicit Cursor המבצע JOIN בין טבלת הנכסים לטבלת הפניות, ורצה בלולאה על גבי משתנה RECORD. בעזרת הסתעפות IF-ELSE היא מחשבת הפרשי ימים: עבור פניה סגורה מחושב הזמן שלקח לסגור אותה, ועבור פניה פתוחה מחושב הזמן שעבר מאז שנפתחה ועד היום (CURRENT_DATE).  
+
+**קוד המקור:**
+```sql
+CREATE OR REPLACE FUNCTION calculate_location_maintenance_days(p_location_id INT)
+RETURNS INT AS $$
+DECLARE
+    ticket_cursor CURSOR FOR 
+        SELECT t.Opened_At, t.Resolved_At, t.Ticket_Status
+        FROM MAINTENANCE_TICKETS t
+        JOIN ASSETS a ON t.Asset_Id = a.Asset_Id
+        WHERE a.Location_Id = p_location_id;
+        
+    v_ticket_record RECORD;
+    v_total_days INT := 0;
+    v_location_exists INT;
+    v_days_spent INT;
+    e_location_not_found EXCEPTION;
+BEGIN
+    SELECT COUNT(*) INTO v_location_exists FROM LOCATIONS WHERE Location_ID = p_location_id;
+    IF v_location_exists = 0 THEN
+        RAISE e_location_not_found;
+    END IF;
+    
+    OPEN ticket_cursor;
+    LOOP
+        FETCH ticket_cursor INTO v_ticket_record;
+        EXIT WHEN NOT FOUND;
+        
+        IF v_ticket_record.Resolved_At IS NOT NULL THEN
+            v_days_spent := v_ticket_record.Resolved_At - v_ticket_record.Opened_At;
+        ELSE
+            v_days_spent := CURRENT_DATE - v_ticket_record.Opened_At;
+        END IF;
+        
+        v_total_days := v_total_days + v_days_spent;
+    END LOOP;
+    CLOSE ticket_cursor;
+    
+    RETURN v_total_days;
+
+EXCEPTION
+    WHEN e_location_not_found THEN
+        RAISE EXCEPTION 'שגיאה בפונקציה: המיקום עם מזהה % אינו קיים במלון.', p_location_id;
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'התרחשה שגיאה בלתי צפויה: %', SQLERRM;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+
+# 2. פונקציית שליפת פניות דחופות (החזרת Ref Cursor)
+**שם הפונקציה:** get_urgent_tickets_curso
+**אלמנטים שמומשו בקוד:** Ref Cursor (החזרת מצביע דינמי), IF, Validation.
+
+**תיאור מילולי:**
+פונקציה זו מקבלת כקלט רמת דחיפות מבוקשת (p_urgency_level) ומחזירה מצביע דינמי מסוג REFCURSOR לשאילתה מורכבת המקשרת שלוש טבלאות שונות (MAINTENANCE_TICKETS, ASSETS, STAFF). הפונקציה כוללת בדיקת תקינות קלט המונעת הזנת ערכים ריקים. ה-Ref Cursor מוחזר פתוח לתוכנית הראשית, מה שמאפשר לה לרוץ עליו בלולאה חיצונית, לשלוף את הנתונים המעודכנים ולהדפיסם בזמן אמת.    
+
+**קוד המקור:**
+```sql
+CREATE OR REPLACE FUNCTION get_urgent_tickets_cursor(p_urgency_level VARCHAR)
+RETURNS REFCURSOR AS $$
+DECLARE
+    v_ref_cursor REFCURSOR := 'urgent_tickets_cur';
+BEGIN
+    IF p_urgency_level IS NULL OR p_urgency_level = '' THEN
+        RAISE EXCEPTION 'שגיאה בפונקציה: רמת הדחיפות שסופקה אינה תקינה או ריקה.';
+    END IF;
+
+    OPEN v_ref_cursor FOR
+        SELECT t.Ticket_ID, a.Asset_Name, t.Issue_Description, 
+               s.First_Name || ' ' || s.Last_Name AS Assigned_Technician, t.Opened_At
+        FROM MAINTENANCE_TICKETS t
+        JOIN ASSETS a ON t.Asset_Id = a.Asset_Id
+        JOIN STAFF s ON t.Staff_Id = s.Staff_ID
+        WHERE t.Ticket_Status = 'Open' 
+          AND t.Urgency_Level = p_urgency_level;
+
+    RETURN v_ref_cursor;
+END;
+$$ LANGUAGE plpgsql;
+```
+## ⚙️ חלק ב': פרוצדורות (Procedures)
+# 1. פרוצדורה לשיוך מחדש של פניות חורגות
+**שם הפרוצדורה:** reassign_overdue_tickets
+**אלמנטים שמומשו בקוד:** Implicit Cursor, Loop, DML (UPDATE), IF-ELSE, Exceptions.
+
+**תיאור מילולי:**
+פרוצדורה זו נועדה לטפל בפניות פתוחות שחורגות מזמן הטיפול המוגדר (פתוחות למעלה מ-3 ימים) ולשייך אותן מחדש לטכנאים מומחים. הפרוצדורה משתמשת ב-Implicit Cursor בתוך לולאת FOR כדי לעבור על כל הפניות החורגות. עבור כל פנייה, היא מחפשת בטבלת STAFF טכנאי ששדה המומחיות שלו (Expertise) תואם בדיוק לקטגוריית הנכס המקולקל (Asset_Category). במידה ונמצא טכנאי מתאים, מבוצעת פקודת DML (UPDATE) המשייכת את הפנייה אליו ומשדרגת את רמת הדחיפות ל-'High'. במידה ולא נמצא מומחה, המערכת מייצרת התראה (NOTICE) מבלי לעצור את הריצה.  
+
+**קוד המקור:**
+
+```sql
+CREATE OR REPLACE PROCEDURE reassign_overdue_tickets()
+AS $$
+DECLARE
+    v_expert_id INT;
+    v_updated_count INT := 0;
+BEGIN
+    FOR v_ticket IN 
+        SELECT t.Ticket_ID, a.Asset_Category, t.Opened_At
+        FROM MAINTENANCE_TICKETS t
+        JOIN ASSETS a ON t.Asset_Id = a.Asset_Id
+        WHERE t.Ticket_Status = 'Open' 
+          AND t.Opened_At < CURRENT_DATE - 3
+    LOOP
+        
+        SELECT Staff_ID INTO v_expert_id
+        FROM STAFF
+        WHERE Expertise = v_ticket.Asset_Category
+        LIMIT 1;
+
+        IF v_expert_id IS NOT NULL THEN
+            
+            UPDATE MAINTENANCE_TICKETS
+            SET Staff_Id = v_expert_id,
+                Urgency_Level = 'High'
+            WHERE Ticket_ID = v_ticket.Ticket_ID;
+            
+            v_updated_count := v_updated_count + 1;
+        ELSE
+            RAISE NOTICE 'התראה: לא נמצא טכנאי עם מומחיות מתאימה (%) עבור פנייה %', 
+                         v_ticket.Asset_Category, v_ticket.Ticket_ID;
+        END IF;
+        
+    END LOOP;
+
+    RAISE NOTICE 'הפרוצדורה הסתיימה בהצלחה. שויכו מחדש % פניות תחזוקה.', v_updated_count;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'שגיאה פרוצדורלית בעת שיוך מחדש של פניות: %', SQLERRM;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+# 2. פרוצדורה לעיבוד כשלונות ספקים וקניסתם
+**שם הפרוצדורה:** process_vendor_failures
+**אלמנטים שמומשו בקוד:**  Parametric Explicit Cursor, Record, Loop, IF-ELSIF-ELSE, Multiple DML Updates, Exceptions.  
+
+**תיאור מילולי:**
+פרוצדורה זו מנתחת את יומן הבדיקות של המלון ומענישה אוטומטית ספקים שרמת הכשלים של הנכסים שלהם חורגת מהמותר. הפרוצדורה מגדירה Explicit Cursor המקבל פרמטר (סטטוס הכישלון לבדיקה) ומבצע אגרגציה (COUNT ו-GROUP BY) על פני שלוש טבלאות. בלולאה ידנית, הפרוצדורה בודקת את חומרת הכשלים של כל ספק באמצעות מבנה IF-ELSIF מורכב: עבור ספק עם 5 כשלים ומעלה, מבוצעות שתי פקודות DML (UPDATE) – אחת המקצרת את תוקף החוזה שלו בטבלת VENDORS ל-30 יום, והשנייה מקפיאה את כל נכסיו בטבלת ASSETS לסטטוס 'Under Review'. עבור ספק עם 2-4 כשלים, סטטוס נכסיו מעודכן ל-'Requires Action' בלבד. 
+
+**קוד המקור:**
+
+```sql
+CREATE OR REPLACE PROCEDURE process_vendor_failures(p_failed_status_text VARCHAR)
+AS $$
+DECLARE
+    vendor_cursor CURSOR(p_status VARCHAR) FOR
+        SELECT v.Vendor_Id, v.Company_Name, COUNT(l.Log_Id) AS fail_count
+        FROM VENDORS v
+        JOIN ASSETS a ON v.Vendor_Id = a.Vendor_Id
+        JOIN INSPECTION_LOG l ON a.Asset_Id = l.Asset_Id
+        WHERE l.Inspection_Result = p_status
+        GROUP BY v.Vendor_Id, v.Company_Name;
+
+    v_vendor_rec RECORD;
+    v_penalty_date DATE := CURRENT_DATE + INTERVAL '30 days';
+BEGIN
+    IF p_failed_status_text IS NULL OR p_failed_status_text = '' THEN
+        RAISE EXCEPTION 'שגיאה: סטטוס הכישלון שסופק לפרוצדורה ריק או לא תקין.';
+    END IF;
+
+    OPEN vendor_cursor(p_failed_status_text);
+    LOOP
+        FETCH vendor_cursor INTO v_vendor_rec;
+        EXIT WHEN NOT FOUND;
+        
+        IF v_vendor_rec.fail_count >= 5 THEN
+            UPDATE VENDORS SET Contract_Expiration = v_penalty_date WHERE Vendor_Id = v_vendor_rec.Vendor_Id;
+            UPDATE ASSETS SET Status = 'Under Review' WHERE Vendor_Id = v_vendor_rec.Vendor_Id;
+            
+            RAISE NOTICE 'ספק חריג: חוזה החברה % קוצר עקב % כשלים, ונכסיה הוקפאו.', 
+                         v_vendor_rec.Company_Name, v_vendor_rec.fail_count;
+                         
+        ELSIF v_vendor_rec.fail_count >= 2 THEN
+            UPDATE ASSETS SET Status = 'Requires Action' WHERE Vendor_Id = v_vendor_rec.Vendor_Id;
+              
+            RAISE NOTICE 'התראה: ספק % צבר % כשלים. סטטוס נכסיו עודכן ל-Requires Action.', 
+                         v_vendor_rec.Company_Name, v_vendor_rec.fail_count;
+        END IF;
+        
+    END LOOP;
+    CLOSE vendor_cursor;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'התרחשה שגיאה פרוצדורלית בעיבוד כשלונות הספקים: %', SQLERRM;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+##⚡ חלק ג': טריגרים (Triggers)
+# 1. טריגר תיעוד אוטומטי ביומן הבדיקות (AFTER UPDATE)
+**טבלה מקושרת:** MAINTENANCE_TICKETS
+**זמן הפעלה:** AFTER UPDATE
+***אלמנטים שמומשו בקוד:** IF (תנאי שינוי סטטוס), DML (INSERT)
+**תיאור מילולי:** 
+הטריגר מופעל אוטומטית מיד לאחר ביצוע פקודת UPDATE על טבלת הפניות. הוא בודק באמצעות הסתעפות האם סטטוס הפנייה השתנה ל-'Resolved' (טופלה) בהשוואה למצבה הקודם (OLD מול NEW). במידה והתנאי מתקיים, הטריגר מחשב את ה-ID הבא הפנוי ומבצע פקודת DML (INSERT) המזינה שורת בדיקה חדשה לטבלת INSPECTION_LOG עם פרטי הטכנאי, הנכס והערה אוטומטית, ובכך מבטיח תיעוד היסטורי אמין וחסין שינויים במלון.
+
+**קוד מקור:**
+```sql
+
+CREATE OR REPLACE FUNCTION log_resolved_ticket_func()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_next_log_id INT;
+BEGIN
+    IF NEW.Ticket_Status = 'Resolved' AND OLD.Ticket_Status IS DISTINCT FROM NEW.Ticket_Status THEN
+        
+        SELECT COALESCE(MAX(Log_Id), 0) + 1 INTO v_next_log_id FROM INSPECTION_LOG;
+        
+        
+        INSERT INTO INSPECTION_LOG (
+            Log_Id, Asset_Id, Staff_Id, Inspection_Date, 
+            Inspection_Result, Technician_Result, Technician_Notes, Tools_Used
+        ) VALUES (
+            v_next_log_id, NEW.Asset_Id, NEW.Staff_Id, CURRENT_DATE,
+            'System Certified', 'Success', 
+            'בדיקה אוטומטית: הפנייה נסגרה בהצלחה. מזהה פנייה: ' || NEW.Ticket_ID,
+            'Automated System'
+        );
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trg_log_resolved_ticket
+AFTER UPDATE ON MAINTENANCE_TICKETS
+FOR EACH ROW
+EXECUTE FUNCTION log_resolved_ticket_func();
+
+```
+# 2. טריגר חסימת שלמות נתונים והקפאת נכסים (BEFORE INSERT OR UPDATE)
+**טבלה מקושרת:** MAINTENANCE_TICKETS
+**זמן הפעלה:** BEFORE INSERT OR UPDATE
+***אלמנטים שמומשו בקוד:** הוצאת שגיאות (RAISE EXCEPTION), IF מורכב, שליפת נתונים מצלבת
+**תיאור מילולי:**
+טריגר הגנתי זה מופעל לפני כתיבת שורה חדשה או מעודכנת לטבלת הפניות ומבצע שתי בדיקות שלמות קריטיות:  הוא מוודא שתאריך הסגירה (Resolved_At) אינו מוקדם מתאריך הפתיחה (Opened_At), ובמידה וכן – הוא בולם את הפעולה וזורק שגיאה מפורשת.  הוא שולף את סטטוס הנכס הרלוונטי מטבלת ASSETS, ובמידה והמשתמש מנסה לפתוח פנייה דחופה (Urgent) עבור נכס שנמצא כעת בהקפאה או בבדיקת ספק (Under Review), הטריגר זורק Exception וחוסם את הרישום בבסיס הנתונים כדי למנוע כפל משימות וטעויות אנוש.  
+
+**קוד מקור:**
+```sql
+
+
+CREATE OR REPLACE FUNCTION validate_ticket_constraints_func()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_asset_status VARCHAR(50);
+BEGINים
+    IF NEW.Resolved_At IS NOT NULL AND NEW.Resolved_At < NEW.Opened_At THEN
+        RAISE EXCEPTION 'שגיאה: תאריך סגירת הפנייה (%) אינו יכול להיות מוקדם מתאריך פתיחתה (%).', 
+                        NEW.Resolved_At, NEW.Opened_At;
+    END IF;
+    SELECT Status INTO v_asset_status FROM ASSETS WHERE Asset_Id = NEW.Asset_Id;
+
+    IF NEW.Urgency_Level = 'Urgent' AND v_asset_status = 'Under Review' THEN
+        RAISE EXCEPTION 'חסימה: לא ניתן לפתוח פנייה דחופה (Urgent) עבור נכס הנמצא בסטטוס Under Review.';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE OR REPLACE TRIGGER trg_validate_ticket_constraints
+BEFORE INSERT OR UPDATE ON MAINTENANCE_TICKETS
+FOR EACH ROW
+EXECUTE FUNCTION validate_ticket_constraints_func();
+```
+## 🖥️ חלק ד': תוכניות ראשיות (Main Programs)
+# 1. תוכנית ראשית מספר 1
+**תוכניות מזומנות:** פרוצדורה reassign_overdue_tickets + פונקציה calculate_location_maintenance_days.  
+**קוד מקור:**
+
+```sql
+DO $$
+DECLARE
+    v_target_location_id INT := 1; 
+    v_total_days INT;
+BEGIN
+    RAISE NOTICE '==================================================';
+    RAISE NOTICE 'הפעלה: מתחיל הרצת תוכנית ראשית מספר 1';
+    RAISE NOTICE '==================================================';
+
+    RAISE NOTICE 'שלב א: מריץ פרוצדורה לאיתור ושיוך מחדש של פניות חורגות...';
+    CALL reassign_overdue_tickets();
+    
+    RAISE NOTICE '--------------------------------------------------';
+
+    RAISE NOTICE 'שלב ב: מריץ פונקציה לחישוב סך ימי התחזוקה במיקום מזהה %...', v_target_location_id;
+    v_total_days := calculate_location_maintenance_days(v_target_location_id);
+    
+    RAISE NOTICE 'סיכום: סך כל ימי העבודה שהושקעו במיקום % הוא: % ימים.', 
+                 v_target_location_id, v_total_days;
+    RAISE NOTICE '==================================================';
+END $$;
+```
+
+# 2. תוכנית ראשית מספר 2
+**תוכניות מזומנות:** פרוצדורה process_vendor_failures + פונקציה get_urgent_tickets_cursor.
+**טכניקה מיוחדת:** יקון וסריקת Ref Cursor דינמי באמצעות לולאה חיצונית ופקודות FETCH.
+**קוד מקור:**
+```sql
+DO $$
+DECLARE
+    v_urgent_tickets_cursor REFCURSOR;
+    
+    v_ticket_id INT;
+    v_asset_name VARCHAR(255);
+    v_description VARCHAR(255);
+    v_technician_name VARCHAR(255);
+    v_opened_date DATE;
+    
+    v_counter INT := 0;
+BEGIN
+    RAISE NOTICE '==================================================';
+    RAISE NOTICE 'הפעלה: מתחיל הרצת תוכנית ראשית מספר 2';
+    RAISE NOTICE '==================================================';
+
+    
+    RAISE NOTICE 'שלב א: מריץ פרוצדורה לעדכון ספקים שנכשלו בבדיקות...';
+    CALL process_vendor_failures('Failed');
+    
+    RAISE NOTICE '--------------------------------------------------';
+
+
+    RAISE NOTICE 'שלב ב: קורא לפונקציה לקבלת Ref Cursor עבור פניות דחופות...';
+    v_urgent_tickets_cursor := get_urgent_tickets_cursor('High');
+
+    RAISE NOTICE 'שלב ג: מתחיל סריקה והדפסה של הפניות מתוך ה-Ref Cursor:';
+    RAISE NOTICE '--------------------------------------------------';
+    
+    LOOP
+        FETCH v_urgent_tickets_cursor INTO v_ticket_id, v_asset_name, v_description, v_technician_name, v_opened_date;
+        EXIT WHEN NOT FOUND; -- יציאה כשנגמרים הנתונים במצביע
+        
+        v_counter := v_counter + 1;
+        RAISE NOTICE 'פנייה מס'' % | נכס: % | תקלה: % | טכנאי: % | פתיחה: %',
+                     v_ticket_id, v_asset_name, v_description, v_technician_name, v_opened_date;
+    END LOOP;
+
+ 
+    CLOSE v_urgent_tickets_cursor;
+
+    RAISE NOTICE '--------------------------------------------------';
+    RAISE NOTICE 'סיכום: סך הכל סרוקו % פניות דחופות מתוך ה-Ref Cursor.', v_counter;
+    RAISE NOTICE '==================================================';
+END $$;
+```
