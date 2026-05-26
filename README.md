@@ -236,8 +236,10 @@ Detailed technical audit trail for routine checks.
 **תיאור השאילתה:** השאילתה מציגה את פרטי הטכנאים (שם, משפחה וטלפון) שסגרו מעל 5 תקלות דחופות במהלך שנת 2025, יחד עם כמות התקלות הכוללת שסגרו. המטרה היא לאתר טכנאים בעלי עומס עבודה גבוה או תפוקה גבוהה לטובת תגמול.
 
 **קוד השאילתה:**
-```sql
+
 -- צורה א' (JOIN)
+```sql
+
 SELECT S.First_Name, S.Last_Name, S.Phone_Number, COUNT(T.Ticket_ID) AS Total_Closed
 FROM STAFF S
 JOIN MAINTENANCE_TICKETS T ON S.Staff_ID = T.Staff_ID
