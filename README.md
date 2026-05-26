@@ -270,8 +270,10 @@ WHERE Staff_ID IN (
 **תיאור השאילתה:** השאילתה שולפת רשימה ייחודית של שמות נכסים ויצרנים עבור ציוד הממוקם באזורים בעלי רמת גישה ציבורית (Public). מידע זה רלוונטי להערכת סיכונים של השחתת ציוד על ידי אורחים.
 
 **קוד השאילתה:**
-```sql
+
 -- צורה א' (JOIN)
+```sql
+
 SELECT DISTINCT A.Asset_Name, A.Manufacturer
 FROM ASSETS A
 JOIN LOCATIONS L ON A.Location_ID = L.Location_ID
