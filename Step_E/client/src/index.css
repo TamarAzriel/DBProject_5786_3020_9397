@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-ink-950 text-pearl font-sans font-light;
+    background-image:
+      radial-gradient(ellipse 70% 50% at 20% -10%, rgba(212, 181, 114, 0.07), transparent),
+      radial-gradient(ellipse 60% 50% at 90% 110%, rgba(43, 60, 99, 0.35), transparent);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    @apply bg-champagne-400/30 text-pearl;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-ink-600/60 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-champagne-600/50;
+  }
+}
+
+@layer components {
+  /* Glassmorphism surface */
+  .glass {
+    @apply bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] shadow-glass;
+  }
+
+  .glass-strong {
+    @apply bg-ink-900/70 backdrop-blur-2xl border border-white/[0.08] shadow-glass-lg;
+  }
+
+  /* 3D-tilting interactive card */
+  .card-3d {
+    @apply glass rounded-2xl shadow-card-3d transition-all duration-500 ease-out;
+    transform-style: preserve-3d;
+    transform: perspective(1000px) translateZ(0);
+  }
+
+  .card-3d:hover {
+    @apply shadow-card-3d-hover border-champagne-400/25;
+    transform: perspective(1000px) translateY(-6px) rotateX(2deg) scale(1.015);
+  }
+
+  /* Thin gold divider line */
+  .gold-divider {
+    @apply h-px w-full bg-gold-line;
+  }
+
+  /* Small uppercase elegant label */
+  .eyebrow {
+    @apply text-[0.65rem] uppercase tracking-widest2 text-champagne-300/80 font-medium;
+  }
+
+  /* Form controls */
+  .input-luxe {
+    @apply w-full bg-white/[0.04] border border-white/[0.1] rounded-xl px-4 py-2.5
+      text-sm text-pearl font-light placeholder:text-pearl/25
+      focus:outline-none focus:border-champagne-400/40 focus:bg-white/[0.06]
+      transition-all duration-300;
+  }
+
+  .input-luxe option {
+    @apply bg-ink-900 text-pearl;
+  }
+
+  .label-luxe {
+    @apply block text-[0.7rem] uppercase tracking-widest text-pearl/45 font-medium mb-1.5;
+  }
+
+  /* Buttons */
+  .btn-gold {
+    @apply inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm tracking-wide
+      bg-champagne-400/15 text-champagne-200 border border-champagne-400/30
+      shadow-card-3d transition-all duration-300
+      hover:bg-champagne-400/25 hover:shadow-gold-glow hover:-translate-y-0.5
+      active:translate-y-0 disabled:opacity-40 disabled:pointer-events-none;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm tracking-wide
+      bg-red-400/15 text-red-200 border border-red-400/30
+      shadow-card-3d transition-all duration-300
+      hover:bg-red-400/25 hover:-translate-y-0.5
+      active:translate-y-0 disabled:opacity-40 disabled:pointer-events-none;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm tracking-wide
+      bg-white/[0.04] text-pearl/70 border border-white/[0.1]
+      transition-all duration-300
+      hover:text-pearl hover:bg-white/[0.07] hover:border-white/[0.18] hover:-translate-y-0.5
+      active:translate-y-0 disabled:opacity-40 disabled:pointer-events-none;
+  }
+
+  /* Glass data table */
+  .table-luxe {
+    @apply w-full text-sm;
+  }
+
+  .table-luxe thead th {
+    @apply text-left text-[0.65rem] uppercase tracking-widest2 text-champagne-300/70
+      font-medium px-5 py-4 border-b border-white/[0.08] whitespace-nowrap;
+  }
+
+  .table-luxe tbody td {
+    @apply px-5 py-4 text-pearl/75 font-light border-b border-white/[0.04] whitespace-nowrap;
+  }
+
+  .table-luxe tbody tr {
+    @apply transition-colors duration-300 hover:bg-white/[0.03];
+  }
+
+  /* Status / urgency pill */
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.7rem]
+      tracking-wide border;
+  }
+}
